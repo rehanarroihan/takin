@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "255259217202",
+    "firebase_url": "https://takin-app.firebaseio.com",
+    "project_id": "takin-app",
+    "storage_bucket": "takin-app.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:255259217202:android:c42dca3f234bdd06",
+        "android_client_info": {
+          "package_name": "com.multazamgsd.takin"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "255259217202-bs73trk7pvnbdimd30n857g3c7ojmbov.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.multazamgsd.takin",
+            "certificate_hash": "9f165a34ffa31066aea4c957a59f32b6daac59a6"
+          }
+        },
+        {
+          "client_id": "255259217202-ugivlcl1e4vlboeug2ikt04v8bpa40dc.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBJ61_hsznREcTmsYyqXfeBTp_cU9UvlUg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "255259217202-ugivlcl1e4vlboeug2ikt04v8bpa40dc.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

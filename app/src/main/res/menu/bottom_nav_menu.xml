@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/navigation_home"
+        android:icon="@drawable/ic_bn_home"
+        android:title="@string/title_home" />
+
+    <item
+        android:id="@+id/navigation_seminar"
+        android:icon="@drawable/ic_bn_seminar"
+        android:title="Seminar" />
+
+    <item
+        android:id="@+id/navigation_committee"
+        android:icon="@drawable/ic_bn_committee"
+        android:title="Committee" />
+
+    <item
+        android:id="@+id/navigation_contest"
+        android:icon="@drawable/ic_bn_contest"
+        android:title="Contest" />
+
+</menu>

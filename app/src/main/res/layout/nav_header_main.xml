@@ -14,26 +14,26 @@
     android:theme="@style/ThemeOverlay.AppCompat.Dark">
 
     <de.hdodenhof.circleimageview.CircleImageView
-        android:id="@+id/profile_image"
+        android:id="@+id/imageViewDrawerProfile"
         android:layout_width="52dp"
         android:layout_height="52dp"
         android:contentDescription="@string/nav_header_desc"
         android:src="@mipmap/ic_launcher_round"
-        app:civ_border_width="2dp"
-        app:civ_border_color="#FFFFFF"/>
+        app:civ_border_color="#FFFFFF"
+        app:civ_border_width="2dp" />
 
     <TextView
+        android:id="@+id/textViewDrawerUsername"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingTop="@dimen/nav_header_vertical_spacing"
-        android:text="@string/nav_header_title"
         android:textColor="@android:color/white"
         android:textSize="18sp"
         android:textStyle="bold"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
 
     <TextView
-        android:id="@+id/textView"
+        android:id="@+id/textViewDrawerEmail"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textColor="@android:color/white"

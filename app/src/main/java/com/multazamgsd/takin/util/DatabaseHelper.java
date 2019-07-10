@@ -2,7 +2,9 @@ package com.multazamgsd.takin.util;
 
 import android.util.Log;
 
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.SetOptions;
 
 import java.text.DateFormat;
@@ -19,6 +21,7 @@ public class DatabaseHelper {
     private static String TABLE_COMMENT_NAME = "comment";
 
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private CollectionReference eventRef = db.collection(TABLE_EVENT_NAME);
 
     public DatabaseHelper() {}
 
@@ -47,5 +50,9 @@ public class DatabaseHelper {
                         Log.d(TAG, "insertUserData operation failed");
                     }
                 });
+    }
+
+    public Query getEventList() {
+        return eventRef.orderBy("publisher", Query.Direction.ASCENDING);
     }
 }

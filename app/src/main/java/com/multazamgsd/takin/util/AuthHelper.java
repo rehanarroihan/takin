@@ -2,7 +2,6 @@ package com.multazamgsd.takin.util;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.widget.Toast;
 
@@ -22,7 +21,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.multazamgsd.takin.LoginActivity;
-import com.multazamgsd.takin.MainActivity;
+import com.multazamgsd.takin.ui.main.MainActivity;
 import com.multazamgsd.takin.R;
 
 /*

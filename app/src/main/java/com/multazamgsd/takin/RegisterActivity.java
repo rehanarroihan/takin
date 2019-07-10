@@ -11,16 +11,14 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.common.api.ApiException;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.multazamgsd.takin.ui.main.MainActivity;
 import com.multazamgsd.takin.util.AuthHelper;
 import com.multazamgsd.takin.util.DatabaseHelper;
 import com.multazamgsd.takin.util.HideKeyboard;
@@ -56,27 +54,16 @@ public class RegisterActivity extends AppCompatActivity {
         }
         setTitle("Sign Up");
 
-        tvToSignIn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(RegisterActivity.this, LoginActivity.class));
-                finish();
+        tvToSignIn.setOnClickListener(v -> {
+            startActivity(new Intent(RegisterActivity.this, LoginActivity.class));
+            finish();
+        });
+        btEmailSignUp.setOnClickListener(v -> {
+            if(isValid()) {
+                doEmailRegister();
             }
         });
-        btEmailSignUp.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(isValid()) {
-                    doEmailRegister();
-                }
-            }
-        });
-        btGoogleSignUp.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                authHelper.doGoogleRegister();
-            }
-        });
+        btGoogleSignUp.setOnClickListener(v -> authHelper.doGoogleRegister());
     }
 
     @Override
@@ -103,30 +90,27 @@ public class RegisterActivity extends AppCompatActivity {
         hideKeyboard.run();
 
         mAuth.createUserWithEmailAndPassword(email, password)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        etEmail.setEnabled(true);
-                        etPassword.setEnabled(true);
-                        btEmailSignUp.setText("Sign Up");
-                        btEmailSignUp.setEnabled(true);
+                .addOnCompleteListener(this, task -> {
+                    etEmail.setEnabled(true);
+                    etPassword.setEnabled(true);
+                    btEmailSignUp.setText("Sign Up");
+                    btEmailSignUp.setEnabled(true);
 
-                        if (task.isSuccessful()) {
-                            mDatabaseHelper.updateUserData(
-                                    "email",
-                                    mAuth.getCurrentUser().getEmail(),
-                                    mAuth.getCurrentUser().getUid(),
-                                    "",
-                                    "",
-                                    "",
-                                    password
-                            );
-                            Toast.makeText(RegisterActivity.this,"Sign up success", Toast.LENGTH_LONG).show();
-                            startActivity(new Intent(RegisterActivity.this, MainActivity.class));
-                            finish();
-                        } else {
-                            Toast.makeText(RegisterActivity.this,"Sign up error, please try again", Toast.LENGTH_LONG).show();
-                        }
+                    if (task.isSuccessful()) {
+                        mDatabaseHelper.updateUserData(
+                                "email",
+                                mAuth.getCurrentUser().getEmail(),
+                                mAuth.getCurrentUser().getUid(),
+                                "",
+                                mAuth.getCurrentUser().getEmail().split("@")[0],
+                                "",
+                                password
+                        );
+                        Toast.makeText(RegisterActivity.this,"Sign up success", Toast.LENGTH_LONG).show();
+                        startActivity(new Intent(RegisterActivity.this, MainActivity.class));
+                        finish();
+                    } else {
+                        Toast.makeText(RegisterActivity.this,"Sign up error, please try again", Toast.LENGTH_LONG).show();
                     }
                 });
     }

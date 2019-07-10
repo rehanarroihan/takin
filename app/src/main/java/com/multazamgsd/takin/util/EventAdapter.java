@@ -1,6 +1,6 @@
-package com.multazamgsd.takin.adapter;
+package com.multazamgsd.takin.util;
 
-import android.util.Log;
+import android.app.Activity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,55 +11,71 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.request.RequestOptions;
-import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
-import com.firebase.ui.firestore.FirestoreRecyclerOptions;
-import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.multazamgsd.takin.R;
 import com.multazamgsd.takin.model.Event;
-import com.multazamgsd.takin.util.GlideApp;
 
-public class EventAdapter extends FirestoreRecyclerAdapter<Event, EventAdapter.EventViewHolder> {
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+
+public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHolder> {
+    private final Activity activity;
+    private ArrayList<Event> events = new ArrayList<>();
     private eventAdapterListener mEventAdapterListener;
 
-    public EventAdapter(@NonNull FirestoreRecyclerOptions<Event> options, eventAdapterListener mEventAdapterListener) {
-        super(options);
-        this.mEventAdapterListener = mEventAdapterListener;
+    public EventAdapter(Activity activity, eventAdapterListener eventAdapterListener) {
+        this.activity = activity;
+        this.mEventAdapterListener = eventAdapterListener;
+    }
+
+    private ArrayList<Event> getEventList() {
+        return events;
+    }
+
+    public void setListEvents(ArrayList<Event> listEvents) {
+        if (listEvents == null) return;
+        this.events.clear();
+        this.events.addAll(listEvents);
     }
 
     @NonNull
     @Override
     public EventViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.event_row, parent, false);
+        View view = LayoutInflater.from(activity).inflate(R.layout.event_row, parent, false);
         return new EventViewHolder(view);
     }
 
     @Override
-    protected void onBindViewHolder(@NonNull EventViewHolder holder, int i, @NonNull Event event) {
-        holder.tvTitle.setText(event.getTitle());
-        holder.tvLocation.setText(event.getLocation_name());
-        holder.tvDate.setText(event.getDate());
-        holder.tvTime.setText(event.getTime_start());
+    public void onBindViewHolder(@NonNull EventViewHolder holder, int position) {
+        holder.tvTitle.setText(getEventList().get(position).getTitle());
+        holder.tvLocation.setText(getEventList().get(position).getLocation_name());
+        holder.tvTime.setText(getEventList().get(position).getTime_start());
 
-        Log.d("Adapter", event.getTitle());
+        //Parsing date to readable format
+        try {
+            SimpleDateFormat sdf =
+                    new SimpleDateFormat("yyyy/MM/dd", java.util.Locale.ENGLISH); // Original date format from database
+            Date date = sdf.parse(getEventList().get(position).getDate());
+            sdf.applyPattern("EEE, d"); // Date format for: Tue, 24 Mar
+            String finalDateFormat = sdf.format(date);
+            holder.tvDate.setText(finalDateFormat); // Set to textView
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
 
+        // Set image
         GlideApp.with(holder.itemView.getContext())
-                .load(event.getPhoto_url())
+                .load(getEventList().get(position).getPhoto_url())
                 .apply(RequestOptions
-                        .placeholderOf(R.drawable.img_placeholder)
-                        .error(R.drawable.img_placeholder))
+                        .placeholderOf(R.drawable.ic_image_grey_24dp)
+                        .error(R.drawable.ic_image_grey_24dp))
                 .into(holder.ivBanner);
     }
 
     @Override
-    public void onError(@NonNull FirebaseFirestoreException e) {
-        super.onError(e);
-        Log.d("Adapter", e.getMessage());
-    }
-
-    @Override
-    public void onDataChanged() {
-        super.onDataChanged();
-        Log.d("Adapter", "Data changed");
+    public int getItemCount() {
+        return getEventList() == null ? 0 : getEventList().size();
     }
 
     public interface eventAdapterListener {

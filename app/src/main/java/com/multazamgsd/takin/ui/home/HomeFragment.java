@@ -6,6 +6,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -49,7 +50,9 @@ public class HomeFragment extends Fragment implements EventAdapter.eventAdapterL
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        loadData();
+        if (getActivity() != null) {
+            loadData();
+        }
     }
 
     private void loadData() {
@@ -60,7 +63,7 @@ public class HomeFragment extends Fragment implements EventAdapter.eventAdapterL
         rvEvent.addItemDecoration(dividerItemDecoration);
         rvEvent.setAdapter(mAdapter);
 
-        FirebaseFirestore.getInstance().collection("event").limit(5).get().addOnCompleteListener(task -> {
+        FirebaseFirestore.getInstance().collection("event").limit(3).get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 ArrayList<Event> eventList = new ArrayList<>();
 

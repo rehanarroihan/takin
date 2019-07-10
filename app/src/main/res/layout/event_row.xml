@@ -4,23 +4,26 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_marginBottom="12dp"
-    android:layout_height="124dp">
+    android:padding="12dp"
+    android:layout_height="124dp"
+    android:focusable="true"
+    android:clickable="true"
+    android:foreground="?android:attr/selectableItemBackground">
 
     <androidx.cardview.widget.CardView
         android:id="@+id/cardView"
-        android:layout_width="80dp"
-        android:layout_height="80dp"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
         app:cardCornerRadius="6dp"
         android:elevation="0dp"
-        android:layout_marginEnd="14dp">
+        android:layout_marginEnd="18dp">
 
         <ImageView
             android:id="@+id/imageViewEventBanner"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:scaleType="centerCrop"
-            android:src="@color/colorPrimary"/>
+            android:src="@color/colorPrimary" />
 
     </androidx.cardview.widget.CardView>
 
@@ -33,7 +36,7 @@
         android:maxLength="59"
         android:textStyle="bold"
         android:textSize="18sp"
-        android:text="24Th Annual Event Name" />
+        android:text="24Th Annual Event Name Dolor Sit Amet Azpili" />
 
     <TextView
         android:id="@+id/textViewEventLocationName"
@@ -84,13 +87,13 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true">
+        android:layout_alignParentEnd="true">
 
         <ImageView
             android:id="@+id/buttonShare"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginRight="9dp"
+            android:layout_marginEnd="9dp"
             android:src="@drawable/ic_button_share"/>
 
         <ImageView

@@ -48,15 +48,18 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
 
     @Override
     public void onBindViewHolder(@NonNull EventViewHolder holder, int position) {
-        holder.tvTitle.setText(getEventList().get(position).getTitle());
-        holder.tvLocation.setText(getEventList().get(position).getLocation_name());
-        holder.tvTime.setText(getEventList().get(position).getTime_start());
+        StringHelper stringHelper = new StringHelper();
+        Event eventItem = getEventList().get(position);
+
+        holder.tvTitle.setText(stringHelper.cutString(eventItem.getTitle(), 46));
+        holder.tvLocation.setText(stringHelper.cutString(eventItem.getLocation_name(), 24));
+        holder.tvTime.setText(eventItem.getTime_start());
 
         //Parsing date to readable format
         try {
             SimpleDateFormat sdf =
                     new SimpleDateFormat("yyyy/MM/dd", java.util.Locale.ENGLISH); // Original date format from database
-            Date date = sdf.parse(getEventList().get(position).getDate());
+            Date date = sdf.parse(eventItem.getDate());
             sdf.applyPattern("EEE, d"); // Date format for: Tue, 24 Mar
             String finalDateFormat = sdf.format(date);
             holder.tvDate.setText(finalDateFormat); // Set to textView
@@ -66,7 +69,7 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
 
         // Set image
         GlideApp.with(holder.itemView.getContext())
-                .load(getEventList().get(position).getPhoto_url())
+                .load(eventItem.getPhoto_url())
                 .apply(RequestOptions
                         .placeholderOf(R.drawable.ic_image_grey_24dp)
                         .error(R.drawable.ic_image_grey_24dp))

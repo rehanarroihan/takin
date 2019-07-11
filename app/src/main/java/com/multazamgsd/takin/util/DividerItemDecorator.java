@@ -17,6 +17,7 @@ public class DividerItemDecorator extends RecyclerView.ItemDecoration {
     public void onDraw(Canvas canvas, RecyclerView parent, RecyclerView.State state) {
         int dividerLeft = parent.getPaddingLeft();
         int dividerRight = parent.getWidth() - parent.getPaddingRight();
+        int margin = 32;
 
         int childCount = parent.getChildCount();
         for (int i = 0; i <= childCount - 2; i++) {
@@ -27,7 +28,7 @@ public class DividerItemDecorator extends RecyclerView.ItemDecoration {
             int dividerTop = child.getBottom() + params.bottomMargin;
             int dividerBottom = dividerTop + mDivider.getIntrinsicHeight();
 
-            mDivider.setBounds(dividerLeft + 32, dividerTop, dividerRight - 32, dividerBottom);
+            mDivider.setBounds(dividerLeft + margin, dividerTop, dividerRight - margin, dividerBottom);
             mDivider.draw(canvas);
         }
     }

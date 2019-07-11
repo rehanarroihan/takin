@@ -6,7 +6,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -24,11 +23,12 @@ import com.multazamgsd.takin.util.EventAdapter;
 
 import java.util.ArrayList;
 
-public class HomeFragment extends Fragment implements EventAdapter.eventAdapterListener {
+public class HomeFragment extends Fragment {
     private static final String TAG = HomeFragment.class.getSimpleName();
-    private EventAdapter mAdapter;
+    private EventAdapter recommendedAdapter, newAdapter;
 
-    private RecyclerView rvEvent;
+    private RecyclerView rvEventRecommended;
+    private RecyclerView rvEventNew;
 
     public HomeFragment() {}
 
@@ -44,26 +44,70 @@ public class HomeFragment extends Fragment implements EventAdapter.eventAdapterL
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        rvEvent = view.findViewById(R.id.rvEvent);
+        rvEventRecommended = view.findViewById(R.id.recyclerViewEventRecommended);
+        rvEventNew = view.findViewById(R.id.recyclerViewEventNew);
     }
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         if (getActivity() != null) {
+            setRecommendedList();
+            setNewList();
             loadData();
         }
     }
 
-    private void loadData() {
-        mAdapter = new EventAdapter(getActivity(), HomeFragment.this);
-        LinearLayoutManager layoutManager = new LinearLayoutManager(getContext(), RecyclerView.VERTICAL, false);
-        rvEvent.setLayoutManager(layoutManager);
-        RecyclerView.ItemDecoration dividerItemDecoration = new DividerItemDecorator(ContextCompat.getDrawable(getActivity(), R.drawable.divider));
-        rvEvent.addItemDecoration(dividerItemDecoration);
-        rvEvent.setAdapter(mAdapter);
+    private void setNewList() {
+        recommendedAdapter = new EventAdapter(getActivity(), new EventAdapter.eventAdapterListener() {
+            @Override
+            public void onEventClick(int itemPosition) {
 
-        FirebaseFirestore.getInstance().collection("event").limit(3).get().addOnCompleteListener(task -> {
+            }
+
+            @Override
+            public void onEventLike(int itemPosition) {
+
+            }
+
+            @Override
+            public void onEventShare(int itemPosition) {
+
+            }
+        });
+        LinearLayoutManager layoutManager = new LinearLayoutManager(getContext(), RecyclerView.VERTICAL, false);
+        rvEventRecommended.setLayoutManager(layoutManager);
+        RecyclerView.ItemDecoration dividerItemDecoration = new DividerItemDecorator(ContextCompat.getDrawable(getActivity(), R.drawable.divider));
+        rvEventRecommended.addItemDecoration(dividerItemDecoration);
+        rvEventRecommended.setAdapter(recommendedAdapter);
+    }
+
+    private void setRecommendedList() {
+        newAdapter = new EventAdapter(getActivity(), new EventAdapter.eventAdapterListener() {
+            @Override
+            public void onEventClick(int itemPosition) {
+
+            }
+
+            @Override
+            public void onEventLike(int itemPosition) {
+
+            }
+
+            @Override
+            public void onEventShare(int itemPosition) {
+
+            }
+        });
+        LinearLayoutManager layoutManager = new LinearLayoutManager(getContext(), RecyclerView.VERTICAL, false);
+        rvEventNew.setLayoutManager(layoutManager);
+        RecyclerView.ItemDecoration dividerItemDecoration = new DividerItemDecorator(ContextCompat.getDrawable(getActivity(), R.drawable.divider));
+        rvEventNew.addItemDecoration(dividerItemDecoration);
+        rvEventNew.setAdapter(recommendedAdapter);
+    }
+
+    private void loadData() {
+        FirebaseFirestore.getInstance().collection("event").limit(4).get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 ArrayList<Event> eventList = new ArrayList<>();
 
@@ -72,26 +116,19 @@ public class HomeFragment extends Fragment implements EventAdapter.eventAdapterL
                     e.setId(doc.getId());
                     eventList.add(e);
                 }
-                mAdapter.setListEvents(eventList);
-                mAdapter.notifyDataSetChanged();
+
+                // Divide to 2 lists
+
+                // Set to recommended rv
+                recommendedAdapter.setListEvents(eventList);
+                recommendedAdapter.notifyDataSetChanged();
+
+                // Set to new rv
+                newAdapter.setListEvents(eventList);
+                newAdapter.notifyDataSetChanged();
             } else {
                 Log.d(TAG, "Error getting documents: ", task.getException());
             }
         });
-    }
-
-    @Override
-    public void onEventClick(int itemPosition) {
-
-    }
-
-    @Override
-    public void onEventLike(int itemPosition) {
-
-    }
-
-    @Override
-    public void onEventShare(int itemPosition) {
-
     }
 }

@@ -8,6 +8,12 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.request.RequestOptions;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.multazamgsd.takin.R;
 import com.multazamgsd.takin.model.Event;
 import com.multazamgsd.takin.util.GlideApp;
@@ -19,6 +25,8 @@ public class EventDetailActivity extends AppCompatActivity {
     private TextView tvTitle, tvPublisher, tvDescription; // Main Card
     private TextView tvDate, tvTime, tvPlace, tvAddress, tvTicketAvailability, tvPoint, tvPrice; // Schedule info card
     private Toolbar toolbar;
+
+    private GoogleMap locationMap;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,6 +66,19 @@ public class EventDetailActivity extends AppCompatActivity {
         tvPlace.setText(event.getLocation_name());
         tvAddress.setText(event.getLocation_address());
         tvTicketAvailability.setText(String.format("%s Tickets", event.getTicket_total()));
+
+        // Defining google maps
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.locationMap);
+        mapFragment.getMapAsync(googleMap -> {
+            locationMap = googleMap;
+
+            Double lat = Double.parseDouble(event.getLocation_lat());
+            Double lng = Double.parseDouble(event.getLocation_long());
+
+            locationMap.addMarker(new MarkerOptions()
+                    .position(new LatLng(lat, lng))
+                    .title(event.getLocation_name()));
+        });
 
     }
 }

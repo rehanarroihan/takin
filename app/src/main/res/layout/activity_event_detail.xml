@@ -13,7 +13,7 @@
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="?attr/colorPrimary"
+        android:background="#9E000000"
         android:elevation="1dp"
         app:popupTheme="@style/AppTheme.PopupOverlay"
         app:layout_constraintTop_toTopOf="parent"
@@ -103,8 +103,6 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:layout_marginTop="16dp"
-                android:layout_marginLeft="@dimen/app_default_right_left_margin"
-                android:layout_marginRight="@dimen/app_default_right_left_margin"
                 app:layout_constraintTop_toBottomOf="@+id/cardViewMainInfo">
 
                 <TextView
@@ -113,11 +111,16 @@
                     android:text="Schedule"
                     android:textColor="@android:color/black"
                     android:layout_marginBottom="10dp"
+                    android:layout_marginLeft="@dimen/app_default_right_left_margin"
+                    android:layout_marginRight="@dimen/app_default_right_left_margin"
                     android:textStyle="bold" />
 
                 <androidx.cardview.widget.CardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    android:layout_marginLeft="@dimen/app_default_right_left_margin"
+                    android:layout_marginRight="@dimen/app_default_right_left_margin"
                     app:cardCornerRadius="12dp">
 
                     <LinearLayout
@@ -246,23 +249,24 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:layout_marginTop="16dp"
-                android:layout_marginLeft="@dimen/app_default_right_left_margin"
-                android:layout_marginRight="@dimen/app_default_right_left_margin"
                 app:layout_constraintTop_toBottomOf="@+id/linearLayoutSchedule">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Schedule"
+                    android:text="Location"
                     android:textColor="@android:color/black"
                     android:layout_marginBottom="10dp"
+                    android:layout_marginLeft="@dimen/app_default_right_left_margin"
+                    android:layout_marginRight="@dimen/app_default_right_left_margin"
                     android:textStyle="bold" />
 
                 <androidx.cardview.widget.CardView
                     android:layout_width="match_parent"
-                    android:layout_height="180dp"
-                    app:cardCornerRadius="12dp">
+                    android:layout_height="192dp"
+                    app:cardCornerRadius="12dp"
+                    android:layout_marginLeft="@dimen/app_default_right_left_margin"
+                    android:layout_marginRight="@dimen/app_default_right_left_margin">
 
                     <!-- Google maps -->
                     <fragment

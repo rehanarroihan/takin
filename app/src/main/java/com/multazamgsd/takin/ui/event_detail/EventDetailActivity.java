@@ -3,14 +3,14 @@ package com.multazamgsd.takin.ui.event_detail;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.request.RequestOptions;
-import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -34,7 +34,12 @@ public class EventDetailActivity extends AppCompatActivity {
         setContentView(R.layout.activity_event_detail);
 
         toolbar = findViewById(R.id.toolbar);
+        toolbar.setTitleTextColor(Color.WHITE);
         toolbar.setTitle("Detail");
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            //getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+            getWindow().setStatusBarColor(Color.parseColor("#9E000000"));
+        }
 
         // Set main info data
         ivEvent = findViewById(R.id.imageViewDetailEvent);
@@ -72,8 +77,8 @@ public class EventDetailActivity extends AppCompatActivity {
         mapFragment.getMapAsync(googleMap -> {
             locationMap = googleMap;
 
-            Double lat = Double.parseDouble(event.getLocation_lat());
-            Double lng = Double.parseDouble(event.getLocation_long());
+            double lat = Double.parseDouble(event.getLocation_lat());
+            double lng = Double.parseDouble(event.getLocation_long());
 
             locationMap.addMarker(new MarkerOptions()
                     .position(new LatLng(lat, lng))

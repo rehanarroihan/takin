@@ -1,5 +1,6 @@
 package com.multazamgsd.takin.ui.home;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -18,6 +19,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.multazamgsd.takin.R;
 import com.multazamgsd.takin.model.Event;
+import com.multazamgsd.takin.ui.event_detail.EventDetailActivity;
 import com.multazamgsd.takin.util.DividerItemDecorator;
 import com.multazamgsd.takin.util.EventAdapter;
 
@@ -25,6 +27,7 @@ import java.util.ArrayList;
 
 public class HomeFragment extends Fragment {
     private static final String TAG = HomeFragment.class.getSimpleName();
+    private ArrayList<Event> eventList = new ArrayList<>();
     private EventAdapter recommendedAdapter, newAdapter;
 
     private RecyclerView rvEventRecommended;
@@ -62,7 +65,7 @@ public class HomeFragment extends Fragment {
         recommendedAdapter = new EventAdapter(getActivity(), new EventAdapter.eventAdapterListener() {
             @Override
             public void onEventClick(int itemPosition) {
-
+                detailIntent(itemPosition);
             }
 
             @Override
@@ -86,7 +89,7 @@ public class HomeFragment extends Fragment {
         newAdapter = new EventAdapter(getActivity(), new EventAdapter.eventAdapterListener() {
             @Override
             public void onEventClick(int itemPosition) {
-
+                detailIntent(itemPosition);
             }
 
             @Override
@@ -109,8 +112,6 @@ public class HomeFragment extends Fragment {
     private void loadData() {
         FirebaseFirestore.getInstance().collection("event").limit(4).get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
-                ArrayList<Event> eventList = new ArrayList<>();
-
                 for(DocumentSnapshot doc : task.getResult()){
                     Event e = doc.toObject(Event.class);
                     e.setId(doc.getId());
@@ -130,5 +131,11 @@ public class HomeFragment extends Fragment {
                 Log.d(TAG, "Error getting documents: ", task.getException());
             }
         });
+    }
+
+    private void detailIntent(Integer listPosition) {
+        Intent i = new Intent(getActivity(), EventDetailActivity.class);
+        i.putExtra(EventDetailActivity.EXTRA_EVENT, eventList.get(listPosition));
+        startActivity(i);
     }
 }

@@ -1,9 +1,12 @@
 package com.multazamgsd.takin.model;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.google.firebase.firestore.IgnoreExtraProperties;
 
 @IgnoreExtraProperties
-public class Event {
+public class Event implements Parcelable {
     private String id;
     private String title;
     private String description;
@@ -179,4 +182,63 @@ public class Event {
     public void setPhoto_url(String photo_url) {
         this.photo_url = photo_url;
     }
+
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(this.id);
+        dest.writeString(this.title);
+        dest.writeString(this.description);
+        dest.writeString(this.publisher);
+        dest.writeString(this.date);
+        dest.writeString(this.time_start);
+        dest.writeString(this.time_end);
+        dest.writeString(this.location_name);
+        dest.writeString(this.location_address);
+        dest.writeString(this.location_lat);
+        dest.writeString(this.location_long);
+        dest.writeString(this.type);
+        dest.writeString(this.point);
+        dest.writeString(this.price);
+        dest.writeString(this.ticket_total);
+        dest.writeString(this.ticket_sold);
+        dest.writeString(this.photo_url);
+    }
+
+    protected Event(Parcel in) {
+        this.id = in.readString();
+        this.title = in.readString();
+        this.description = in.readString();
+        this.publisher = in.readString();
+        this.date = in.readString();
+        this.time_start = in.readString();
+        this.time_end = in.readString();
+        this.location_name = in.readString();
+        this.location_address = in.readString();
+        this.location_lat = in.readString();
+        this.location_long = in.readString();
+        this.type = in.readString();
+        this.point = in.readString();
+        this.price = in.readString();
+        this.ticket_total = in.readString();
+        this.ticket_sold = in.readString();
+        this.photo_url = in.readString();
+    }
+
+    public static final Parcelable.Creator<Event> CREATOR = new Parcelable.Creator<Event>() {
+        @Override
+        public Event createFromParcel(Parcel source) {
+            return new Event(source);
+        }
+
+        @Override
+        public Event[] newArray(int size) {
+            return new Event[size];
+        }
+    };
 }

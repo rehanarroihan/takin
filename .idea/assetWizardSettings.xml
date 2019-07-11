@@ -33,9 +33,10 @@
                         </option>
                         <option name="values">
                           <map>
+                            <entry key="assetSourceType" value="FILE" />
                             <entry key="color" value="aab3a7" />
-                            <entry key="outputName" value="ic_image_grey_24dp" />
-                            <entry key="sourceFile" value="D:\iconmonstr-heart-thin.svg" />
+                            <entry key="outputName" value="ic_ticket_availability" />
+                            <entry key="sourceFile" value="D:\ticket_availability.svg" />
                           </map>
                         </option>
                       </PersistentState>

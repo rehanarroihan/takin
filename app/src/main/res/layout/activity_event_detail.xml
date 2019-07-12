@@ -6,12 +6,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    app:statusBarBackground="@android:color/transparent"
     android:background="@color/activityDefaultBg"
     tools:context=".ui.event_detail.EventDetailActivity">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="?attr/actionBarSize"
         android:background="#9E000000"
         android:elevation="1dp"
@@ -21,7 +22,8 @@
         app:layout_constraintRight_toRightOf="parent" />
 
     <androidx.core.widget.NestedScrollView
-        android:layout_width="match_parent"
+        android:id="@+id/nestedScrollView"
+        android:layout_width="0dp"
         android:layout_height="match_parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
@@ -29,15 +31,15 @@
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:layout_height="wrap_content">
 
             <ImageView
                 android:id="@+id/imageViewDetailEvent"
                 android:layout_width="0dp"
                 android:layout_height="236dp"
-                android:src="@drawable/ic_image_grey_24dp"
+                android:src="@drawable/home_bg"
                 android:scaleType="centerCrop"
+                android:contentDescription="@string/app_name"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"/>

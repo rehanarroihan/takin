@@ -2,18 +2,13 @@ package com.multazamgsd.takin.ui.event_detail;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.appcompat.widget.ViewUtils;
-import androidx.core.content.ContextCompat;
-import androidx.core.widget.NestedScrollView;
+import androidx.core.app.ShareCompat;
 
-import android.content.Context;
 import android.graphics.Color;
-import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.animation.TranslateAnimation;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -28,12 +23,13 @@ import com.multazamgsd.takin.util.GlideApp;
 
 public class EventDetailActivity extends AppCompatActivity {
     public static final String EXTRA_EVENT = "extra_event";
+    private Integer ticketAvailable;
 
     private ImageView ivEvent;
     private TextView tvTitle, tvPublisher, tvDescription; // Main Card
     private TextView tvDate, tvTime, tvPlace, tvAddress, tvTicketAvailability, tvPoint, tvPrice; // Schedule info card
     private Toolbar toolbar;
-    private NestedScrollView nsv;
+    private Event event;
 
     private GoogleMap locationMap;
 
@@ -44,21 +40,9 @@ public class EventDetailActivity extends AppCompatActivity {
 
         toolbar = findViewById(R.id.toolbar);
         toolbar.setTitleTextColor(Color.WHITE);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
-            getWindow().setStatusBarColor(ContextCompat.getColor(this, android.R.color.transparent));
-        }
-        toolbar.setVisibility(View.GONE);
-
-        //Switch up toolbar hide/show
-        nsv = findViewById(R.id.nestedScrollView);
-        nsv.setOnScrollChangeListener((NestedScrollView.OnScrollChangeListener) (v, scrollX, scrollY, oldScrollX, oldScrollY) -> {
-            if (scrollY > 260) {
-                toolbar.setVisibility(View.VISIBLE);
-            } else if (scrollY < 260) {
-                toolbar.setVisibility(View.GONE);
-            }
-        });
+        setSupportActionBar(toolbar);
+        toolbar.setPadding(12,0,24,0);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         // Set main info data
         ivEvent = findViewById(R.id.imageViewDetailEvent);
@@ -66,7 +50,7 @@ public class EventDetailActivity extends AppCompatActivity {
         tvPublisher = findViewById(R.id.textViewDetailEventPublisher);
         tvDescription = findViewById(R.id.textViewDetailEventDesc);
 
-        Event event = getIntent().getParcelableExtra(EXTRA_EVENT);
+        event = getIntent().getParcelableExtra(EXTRA_EVENT);
         GlideApp.with(this)
                 .load(event.getPhoto_url())
                 .apply(RequestOptions
@@ -77,6 +61,10 @@ public class EventDetailActivity extends AppCompatActivity {
         tvPublisher.setText(String.format("Published by %s", event.getPublisher()));
         tvTitle.setText(event.getTitle());
         tvDescription.setText(event.getDescription());
+
+        // Setting up page title
+        String title = event.getType().substring(0, 1).toUpperCase() + event.getType().substring(1);
+        setTitle(title);
 
         // Set schedule card info data
         tvDate = findViewById(R.id.textViewEventDetailDate);
@@ -89,7 +77,8 @@ public class EventDetailActivity extends AppCompatActivity {
         tvTime.setText(String.format("%s - %s WIB", event.getTime_start(), event.getTime_end()));
         tvPlace.setText(event.getLocation_name());
         tvAddress.setText(event.getLocation_address());
-        tvTicketAvailability.setText(String.format("%s Tickets", event.getTicket_total()));
+        ticketAvailable = Integer.parseInt(event.getTicket_total()) - Integer.parseInt(event.getTicket_sold());
+        tvTicketAvailability.setText(String.format("%s / %s Tickets", ticketAvailable ,event.getTicket_total()));
 
         // Defining google maps
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.locationMap);
@@ -103,5 +92,32 @@ public class EventDetailActivity extends AppCompatActivity {
                     .position(new LatLng(lat, lng))
                     .title(event.getLocation_name()));
         });
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater findMenuItems = getMenuInflater();
+        findMenuItems.inflate(R.menu.detail_menu, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
+                break;
+            case R.id.action_like:
+                break;
+            case R.id.action_share:
+                ShareCompat.IntentBuilder
+                        .from(EventDetailActivity.this)
+                        .setType("text/plain")
+                        .setChooserTitle("Share event")
+                        .setText(String.format("Ayo daftar event %s di aplikasi Takin, hanya %s tiket tersedia!", event.getTitle(), String.valueOf(ticketAvailable)))
+                        .startChooser();
+                break;
+        }
+        return super.onOptionsItemSelected(item);
     }
 }

@@ -22,8 +22,6 @@ import com.multazamgsd.takin.model.Event;
 import com.multazamgsd.takin.util.GlideApp;
 import com.multazamgsd.takin.util.StringHelper;
 
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;

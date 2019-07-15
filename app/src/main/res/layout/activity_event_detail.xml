@@ -32,7 +32,8 @@
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="120dp">
 
             <ImageView
                 android:id="@+id/imageViewDetailEvent"
@@ -332,7 +333,7 @@
 
             </LinearLayout>
 
-            <!--Maps container-->
+            <!-- Maps container -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -370,5 +371,35 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.core.widget.NestedScrollView>
+
+    <!-- Get a ticket container -->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="120dp"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <View
+            android:id="@+id/gradientWhite"
+            android:layout_width="match_parent"
+            android:layout_height="114dp"
+            android:layout_alignParentBottom="true"
+            android:background="@drawable/white_gradient" />
+
+        <Button
+            android:id="@+id/buttonGetTicket"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@android:color/white"
+            android:textAllCaps="false"
+            android:text="Get a Ticket"
+            android:layout_marginRight="18dp"
+            android:layout_marginLeft="18dp"
+            android:elevation="2dp"
+            android:layout_marginBottom="12dp"
+            android:layout_alignParentBottom="true"
+            android:background="@drawable/ic_button_black"/>
+
+    </RelativeLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -20,17 +20,20 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.multazamgsd.takin.R;
 import com.multazamgsd.takin.model.Event;
 import com.multazamgsd.takin.util.GlideApp;
+import com.multazamgsd.takin.util.StringHelper;
 
 public class EventDetailActivity extends AppCompatActivity {
     public static final String EXTRA_EVENT = "extra_event";
+    private Boolean descriptionExpand = false;
     private Integer ticketAvailable;
 
     private ImageView ivEvent;
     private TextView tvTitle, tvPublisher, tvDescription; // Main Card
-    private TextView tvDate, tvTime, tvPlace, tvAddress, tvTicketAvailability, tvPoint, tvPrice; // Schedule info card
+    private TextView tvDate, tvTime, tvPlace, tvAddress, tvTicketAvailability, tvPoint, tvPrice, tvSeeMore; // Schedule info card
     private Toolbar toolbar;
     private Event event;
 
+    private StringHelper stringHelper;
     private GoogleMap locationMap;
 
     @Override
@@ -44,11 +47,16 @@ public class EventDetailActivity extends AppCompatActivity {
         toolbar.setPadding(12,0,24,0);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+        //Load string helper for trimming
+        stringHelper = new StringHelper();
+
         // Set main info data
         ivEvent = findViewById(R.id.imageViewDetailEvent);
         tvTitle = findViewById(R.id.textViewDetailEventTitle);
         tvPublisher = findViewById(R.id.textViewDetailEventPublisher);
         tvDescription = findViewById(R.id.textViewDetailEventDesc);
+        tvSeeMore = findViewById(R.id.textViewSeeMore);
+        tvSeeMore.setOnClickListener(v -> showLessDescription());
 
         event = getIntent().getParcelableExtra(EXTRA_EVENT);
         GlideApp.with(this)
@@ -60,7 +68,7 @@ public class EventDetailActivity extends AppCompatActivity {
         tvTitle.setText(event.getTitle());
         tvPublisher.setText(String.format("Published by %s", event.getPublisher()));
         tvTitle.setText(event.getTitle());
-        tvDescription.setText(event.getDescription());
+        tvDescription.setText(stringHelper.cutString(event.getDescription(), 183));
 
         // Setting up page title
         String title = event.getType().substring(0, 1).toUpperCase() + event.getType().substring(1);
@@ -76,7 +84,7 @@ public class EventDetailActivity extends AppCompatActivity {
         tvDate.setText(event.getDate());
         tvTime.setText(String.format("%s - %s WIB", event.getTime_start(), event.getTime_end()));
         tvPlace.setText(event.getLocation_name());
-        tvAddress.setText(event.getLocation_address());
+        tvAddress.setText(stringHelper.cutString(event.getLocation_address(), 63));
         ticketAvailable = Integer.parseInt(event.getTicket_total()) - Integer.parseInt(event.getTicket_sold());
         tvTicketAvailability.setText(String.format("%s / %s Tickets", ticketAvailable ,event.getTicket_total()));
 
@@ -92,6 +100,18 @@ public class EventDetailActivity extends AppCompatActivity {
                     .position(new LatLng(lat, lng))
                     .title(event.getLocation_name()));
         });
+    }
+
+    private void showLessDescription() {
+        if (!descriptionExpand) {
+            descriptionExpand = true;
+            tvSeeMore.setText("Show less");
+            tvDescription.setText(event.getDescription());
+        } else {
+            descriptionExpand = false;
+            tvSeeMore.setText("See more");
+            tvDescription.setText(stringHelper.cutString(event.getDescription(), 183));
+        }
     }
 
     @Override

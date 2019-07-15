@@ -95,6 +95,13 @@
                         android:textSize="14sp"
                         android:layout_marginBottom="8dp"/>
 
+                    <TextView
+                        android:id="@+id/textViewSeeMore"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="See more"
+                        android:textColor="#017dc3"/>
+
                 </LinearLayout>
 
             </androidx.cardview.widget.CardView>

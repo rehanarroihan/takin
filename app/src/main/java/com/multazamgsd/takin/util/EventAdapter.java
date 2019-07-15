@@ -14,6 +14,8 @@ import com.bumptech.glide.request.RequestOptions;
 import com.multazamgsd.takin.R;
 import com.multazamgsd.takin.model.Event;
 
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -54,13 +56,14 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
         holder.tvTitle.setText(stringHelper.cutString(eventItem.getTitle(), 46));
         holder.tvLocation.setText(stringHelper.cutString(eventItem.getLocation_name(), 24));
         holder.tvTime.setText(eventItem.getTime_start());
+        holder.tvPrice.setText(stringHelper.priceOrFree(eventItem.getPrice()));
 
         //Parsing date to readable format
         try {
             SimpleDateFormat sdf =
-                    new SimpleDateFormat("yyyy/MM/dd", java.util.Locale.ENGLISH); // Original date format from database
+                    new SimpleDateFormat("yyyy-MM-dd", java.util.Locale.ENGLISH); // Original date format from database
             Date date = sdf.parse(eventItem.getDate());
-            sdf.applyPattern("EEE, d"); // Date format for: Tue, 24 Mar
+            sdf.applyPattern("E, MMM d"); // Date format for: Tue, 24 Mar
             String finalDateFormat = sdf.format(date);
             holder.tvDate.setText(finalDateFormat); // Set to textView
         } catch (ParseException e) {

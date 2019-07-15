@@ -22,6 +22,12 @@ import com.multazamgsd.takin.model.Event;
 import com.multazamgsd.takin.util.GlideApp;
 import com.multazamgsd.takin.util.StringHelper;
 
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 public class EventDetailActivity extends AppCompatActivity {
     public static final String EXTRA_EVENT = "extra_event";
     private Boolean descriptionExpand = false;
@@ -80,13 +86,27 @@ public class EventDetailActivity extends AppCompatActivity {
         tvPlace = findViewById(R.id.textViewEventDetailPlace);
         tvAddress = findViewById(R.id.textViewEventDetailAddress);
         tvTicketAvailability = findViewById(R.id.textViewEventDetailTicketAvailability);
+        tvPoint = findViewById(R.id.textViewEventDetailTAKTotal);
+        tvPrice = findViewById(R.id.textViewEventDetailPrice);
 
-        tvDate.setText(event.getDate());
+        // Parsing date
+        try {
+            SimpleDateFormat sdf =
+                    new SimpleDateFormat("yyyy-MM-dd", java.util.Locale.ENGLISH); // Original date format from database
+            Date date = sdf.parse(event.getDate());
+            sdf.applyPattern("EEEE, MMMM d"); // Date format for: Saturday, January 12
+            String finalDateFormat = sdf.format(date);
+            tvDate.setText(finalDateFormat); // Set to textView
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
         tvTime.setText(String.format("%s - %s WIB", event.getTime_start(), event.getTime_end()));
         tvPlace.setText(event.getLocation_name());
         tvAddress.setText(stringHelper.cutString(event.getLocation_address(), 63));
         ticketAvailable = Integer.parseInt(event.getTicket_total()) - Integer.parseInt(event.getTicket_sold());
         tvTicketAvailability.setText(String.format("%s / %s Tickets", ticketAvailable ,event.getTicket_total()));
+        tvPoint.setText(String.format("%s TAK", event.getPoint()));
+        tvPrice.setText(stringHelper.priceOrFree(event.getPrice()));
 
         // Defining google maps
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.locationMap);

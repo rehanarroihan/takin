@@ -375,14 +375,14 @@
     <!-- Get a ticket container -->
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="120dp"
+        android:layout_height="142dp"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintBottom_toBottomOf="parent">
 
         <View
             android:id="@+id/gradientWhite"
             android:layout_width="match_parent"
-            android:layout_height="114dp"
+            android:layout_height="match_parent"
             android:layout_alignParentBottom="true"
             android:background="@drawable/white_gradient" />
 

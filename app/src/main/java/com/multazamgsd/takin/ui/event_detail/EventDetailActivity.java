@@ -13,6 +13,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.request.RequestOptions;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
@@ -114,9 +115,11 @@ public class EventDetailActivity extends AppCompatActivity {
             double lat = Double.parseDouble(event.getLocation_lat());
             double lng = Double.parseDouble(event.getLocation_long());
 
+            LatLng locationPin = new LatLng(lat, lng);
             locationMap.addMarker(new MarkerOptions()
-                    .position(new LatLng(lat, lng))
+                    .position(locationPin)
                     .title(event.getLocation_name()));
+            locationMap.moveCamera(CameraUpdateFactory.newLatLngZoom(locationPin, 15.0f));
         });
     }
 

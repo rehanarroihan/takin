@@ -3,9 +3,13 @@ package com.multazamgsd.takin.ui.event_detail;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ShareCompat;
+import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -18,23 +22,35 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.multazamgsd.takin.R;
 import com.multazamgsd.takin.model.Event;
+import com.multazamgsd.takin.util.DatabaseHelper;
+import com.multazamgsd.takin.util.DividerItemDecorator;
 import com.multazamgsd.takin.util.GlideApp;
 import com.multazamgsd.takin.util.StringHelper;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 
 public class EventDetailActivity extends AppCompatActivity {
     public static final String EXTRA_EVENT = "extra_event";
+    public static final String TAG = EventDetailActivity.class.getSimpleName();
     private Boolean descriptionExpand = false;
     private Integer ticketAvailable;
+    private String uppercaseEventType;
+    private MoreEventAdapter mAdapter;
+    private ArrayList<Event> eventList = new ArrayList<>();
 
     private ImageView ivEvent;
     private TextView tvTitle, tvPublisher, tvDescription; // Main Card
     private TextView tvDate, tvTime, tvPlace, tvAddress, tvTicketAvailability, tvPoint, tvPrice, tvSeeMore; // Schedule info card
+    private TextView tvEventType;
+    private RecyclerView rvMoreEvent;
     private Toolbar toolbar;
     private Event event;
 
@@ -76,8 +92,8 @@ public class EventDetailActivity extends AppCompatActivity {
         tvDescription.setText(stringHelper.cutString(event.getDescription(), 183));
 
         // Setting up page title
-        String title = event.getType().substring(0, 1).toUpperCase() + event.getType().substring(1);
-        setTitle(title);
+        uppercaseEventType = event.getType().substring(0, 1).toUpperCase() + event.getType().substring(1);
+        setTitle(uppercaseEventType);
 
         // Set schedule card info data
         tvDate = findViewById(R.id.textViewEventDetailDate);
@@ -120,6 +136,52 @@ public class EventDetailActivity extends AppCompatActivity {
                     .position(locationPin)
                     .title(event.getLocation_name()));
             locationMap.moveCamera(CameraUpdateFactory.newLatLngZoom(locationPin, 15.0f));
+        });
+
+        // Defining more event section list
+        setUpMoreEvent();
+    }
+
+    private void setUpMoreEvent() {
+        tvEventType = findViewById(R.id.textViewMoreEvent);
+        tvEventType.setText(String.format("More %s", uppercaseEventType));
+        rvMoreEvent = findViewById(R.id.recyclerViewMoreEvent);
+        mAdapter = new MoreEventAdapter(this, new MoreEventAdapter.eventAdapterListener() {
+            @Override
+            public void onEventClick(int itemPosition) {
+
+            }
+
+            @Override
+            public void onEventLike(int itemPosition) {
+
+            }
+
+            @Override
+            public void onEventShare(int itemPosition) {
+
+            }
+        });
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this, RecyclerView.HORIZONTAL, false);
+        rvMoreEvent.setLayoutManager(layoutManager);
+        rvMoreEvent.setAdapter(mAdapter);
+
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        CollectionReference eventRef = db.collection("event");
+        eventRef.whereEqualTo("type", event.getType()).limit(6).get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                for(DocumentSnapshot doc : task.getResult()){
+                    Event e = doc.toObject(Event.class);
+                    e.setId(doc.getId());
+                    if (!e.getId().equals(event.getId())) {
+                        eventList.add(e);
+                    }
+                }
+                mAdapter.setListEvents(eventList);
+                mAdapter.notifyDataSetChanged();
+            } else {
+                Log.d(TAG, "Error getting documents: ", task.getException());
+            }
         });
     }
 

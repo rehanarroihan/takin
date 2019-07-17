@@ -7,6 +7,7 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
@@ -149,7 +150,9 @@ public class EventDetailActivity extends AppCompatActivity {
         mAdapter = new MoreEventAdapter(this, new MoreEventAdapter.eventAdapterListener() {
             @Override
             public void onEventClick(int itemPosition) {
-
+                Intent i = new Intent(EventDetailActivity.this, EventDetailActivity.class);
+                i.putExtra(EXTRA_EVENT, eventList.get(itemPosition));
+                startActivity(i);
             }
 
             @Override

@@ -449,7 +449,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_alignParentBottom="true"
-            android:background="@drawable/white_gradient" />
+            android:background="@drawable/ic_white_gradient" />
 
         <Button
             android:id="@+id/buttonGetTicket"

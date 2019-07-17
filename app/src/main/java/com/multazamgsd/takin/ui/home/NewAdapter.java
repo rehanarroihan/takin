@@ -1,4 +1,4 @@
-package com.multazamgsd.takin.util;
+package com.multazamgsd.takin.ui.home;
 
 import android.app.Activity;
 import android.view.LayoutInflater;
@@ -13,20 +13,20 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.request.RequestOptions;
 import com.multazamgsd.takin.R;
 import com.multazamgsd.takin.model.Event;
+import com.multazamgsd.takin.util.GlideApp;
+import com.multazamgsd.takin.util.StringHelper;
 
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
-public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHolder> {
+public class NewAdapter extends RecyclerView.Adapter<NewAdapter.EventViewHolder> {
     private final Activity activity;
     private ArrayList<Event> events = new ArrayList<>();
     private eventAdapterListener mEventAdapterListener;
 
-    public EventAdapter(Activity activity, eventAdapterListener eventAdapterListener) {
+    public NewAdapter(Activity activity, eventAdapterListener eventAdapterListener) {
         this.activity = activity;
         this.mEventAdapterListener = eventAdapterListener;
     }

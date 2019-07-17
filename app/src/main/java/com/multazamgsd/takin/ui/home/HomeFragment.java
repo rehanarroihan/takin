@@ -21,14 +21,18 @@ import com.multazamgsd.takin.R;
 import com.multazamgsd.takin.model.Event;
 import com.multazamgsd.takin.ui.event_detail.EventDetailActivity;
 import com.multazamgsd.takin.util.DividerItemDecorator;
-import com.multazamgsd.takin.util.EventAdapter;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class HomeFragment extends Fragment {
     private static final String TAG = HomeFragment.class.getSimpleName();
-    private ArrayList<Event> eventList = new ArrayList<>();
-    private EventAdapter recommendedAdapter, newAdapter;
+
+    private ArrayList<Event> recommendedList = new ArrayList<>();
+    private ArrayList<Event> newList = new ArrayList<>();
+
+    private RecommendedAdapter recommendedAdapter;
+    private NewAdapter newAdapter;
 
     private RecyclerView rvEventRecommended;
     private RecyclerView rvEventNew;
@@ -62,10 +66,10 @@ public class HomeFragment extends Fragment {
     }
 
     private void setNewList() {
-        recommendedAdapter = new EventAdapter(getActivity(), new EventAdapter.eventAdapterListener() {
+        newAdapter = new NewAdapter(getActivity(), new NewAdapter.eventAdapterListener() {
             @Override
             public void onEventClick(int itemPosition) {
-                detailIntent(itemPosition);
+                detailIntent(newList.get(itemPosition));
             }
 
             @Override
@@ -79,17 +83,19 @@ public class HomeFragment extends Fragment {
             }
         });
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext(), RecyclerView.VERTICAL, false);
-        rvEventRecommended.setLayoutManager(layoutManager);
         RecyclerView.ItemDecoration dividerItemDecoration = new DividerItemDecorator(ContextCompat.getDrawable(getActivity(), R.drawable.divider));
-        rvEventRecommended.addItemDecoration(dividerItemDecoration);
-        rvEventRecommended.setAdapter(recommendedAdapter);
+        rvEventNew.setLayoutManager(layoutManager);
+        rvEventNew.addItemDecoration(dividerItemDecoration);
+        rvEventNew.setHasFixedSize(true);
+        rvEventNew.setNestedScrollingEnabled(false);
+        rvEventNew.setAdapter(newAdapter);
     }
 
     private void setRecommendedList() {
-        newAdapter = new EventAdapter(getActivity(), new EventAdapter.eventAdapterListener() {
+        recommendedAdapter = new RecommendedAdapter(getActivity(), new RecommendedAdapter.eventAdapterListener() {
             @Override
             public void onEventClick(int itemPosition) {
-                detailIntent(itemPosition);
+                detailIntent(recommendedList.get(itemPosition));
             }
 
             @Override
@@ -103,29 +109,39 @@ public class HomeFragment extends Fragment {
             }
         });
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext(), RecyclerView.VERTICAL, false);
-        rvEventNew.setLayoutManager(layoutManager);
         RecyclerView.ItemDecoration dividerItemDecoration = new DividerItemDecorator(ContextCompat.getDrawable(getActivity(), R.drawable.divider));
-        rvEventNew.addItemDecoration(dividerItemDecoration);
-        rvEventNew.setAdapter(recommendedAdapter);
+        rvEventRecommended.setLayoutManager(layoutManager);
+        rvEventRecommended.addItemDecoration(dividerItemDecoration);
+        rvEventRecommended.setHasFixedSize(true);
+        rvEventRecommended.setNestedScrollingEnabled(false);
+        rvEventRecommended.setAdapter(recommendedAdapter);
     }
 
     private void loadData() {
         FirebaseFirestore.getInstance().collection("event").limit(4).get().addOnCompleteListener(task -> {
+            ArrayList<Event> result = new ArrayList<>();
             if (task.isSuccessful()) {
                 for(DocumentSnapshot doc : task.getResult()){
                     Event e = doc.toObject(Event.class);
                     e.setId(doc.getId());
-                    eventList.add(e);
+                    result.add(e);
                 }
 
-                // Divide to 2 lists
+                // Divide into 2 lists
+                for (int i=0; i < result.size(); i++) {
+                    if (i < 2) {
+                        newList.add(result.get(i));
+                    } else {
+                        recommendedList.add(result.get(i));
+                    }
+                }
 
                 // Set to recommended rv
-                recommendedAdapter.setListEvents(eventList);
+                recommendedAdapter.setListEvents(recommendedList);
                 recommendedAdapter.notifyDataSetChanged();
 
                 // Set to new rv
-                newAdapter.setListEvents(eventList);
+                newAdapter.setListEvents(newList);
                 newAdapter.notifyDataSetChanged();
             } else {
                 Log.d(TAG, "Error getting documents: ", task.getException());
@@ -133,9 +149,9 @@ public class HomeFragment extends Fragment {
         });
     }
 
-    private void detailIntent(Integer listPosition) {
+    private void detailIntent(Event dataToSend) {
         Intent i = new Intent(getActivity(), EventDetailActivity.class);
-        i.putExtra(EventDetailActivity.EXTRA_EVENT, eventList.get(listPosition));
+        i.putExtra(EventDetailActivity.EXTRA_EVENT, dataToSend);
         startActivity(i);
     }
 }

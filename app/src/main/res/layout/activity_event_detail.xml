@@ -33,7 +33,7 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="90dp">
+            android:layout_marginBottom="78dp">
 
             <ImageView
                 android:id="@+id/imageViewDetailEvent"
@@ -428,7 +428,7 @@
                     android:layout_height="wrap_content"
                     android:paddingTop="2dp"
                     android:paddingStart="@dimen/app_default_right_left_margin"
-                    android:paddingBottom="2dp"
+                    android:paddingBottom="8dp"
                     android:clipToPadding="false" />
 
             </LinearLayout>

@@ -59,6 +59,17 @@ public class DatabaseHelper {
         return eventRef.orderBy("publisher", Query.Direction.ASCENDING);
     }
 
+    public void countEventComment(String event_id, CountEventCommentListener callback) {
+        db.collection(TABLE_COMMENT_NAME)
+                .whereEqualTo("event_id", event_id)
+                .get().addOnCompleteListener(task -> {
+
+            if (task.isSuccessful()) {
+                callback.onComplete(String.valueOf(task.getResult().size()));
+            }
+        });
+    }
+
     public void loadEventComment(String event_id, LoadEventCommentListener callback) {
         db.collection(TABLE_COMMENT_NAME)
                 .whereEqualTo("event_id", event_id)
@@ -85,6 +96,10 @@ public class DatabaseHelper {
                 callback.onComplete(task);
             }
         });
+    }
+
+    public interface CountEventCommentListener {
+        void onComplete(String commentCount);
     }
 
     public interface LoadEventCommentListener {

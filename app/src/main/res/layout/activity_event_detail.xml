@@ -382,7 +382,7 @@
                     android:id="@+id/textViewCommentCount"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Comments (104)"
+                    android:text="Comments (0)"
                     android:textColor="@android:color/black"
                     android:layout_marginBottom="10dp"
                     android:layout_marginLeft="@dimen/app_default_right_left_margin"

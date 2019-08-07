@@ -272,8 +272,17 @@ public class EventDetailActivity extends AppCompatActivity {
     }
 
     private void loadEventComment() {
-        mDatabaseHelper.loadEventComment(event.getId(), task -> {
+        // Count comment of this event
+        mDatabaseHelper.countEventComment(event.getId(), commentCount -> {
+            tvCommentCount.setText(String.format("Comments (%s)", commentCount));
+            if (Integer.parseInt(commentCount) > 0) {
+                tvNoComment.setVisibility(View.GONE);
+                rvComment.setVisibility(View.VISIBLE);
 
+                mDatabaseHelper.loadEventComment(event.getId(), task -> {
+
+                });
+            }
         });
     }
 

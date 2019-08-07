@@ -19,6 +19,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.request.RequestOptions;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -26,14 +27,17 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.multazamgsd.takin.R;
 import com.multazamgsd.takin.model.Event;
+import com.multazamgsd.takin.util.AuthHelper;
 import com.multazamgsd.takin.util.DatabaseHelper;
 import com.multazamgsd.takin.util.DividerItemDecorator;
 import com.multazamgsd.takin.util.GlideApp;
+import com.multazamgsd.takin.util.HideKeyboard;
 import com.multazamgsd.takin.util.StringHelper;
 
 import java.text.ParseException;
@@ -46,6 +50,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public class EventDetailActivity extends AppCompatActivity {
     public static final String EXTRA_EVENT = "extra_event";
     public static final String TAG = EventDetailActivity.class.getSimpleName();
+
     private Boolean descriptionExpand = false;
     private Integer ticketAvailable;
     private String uppercaseEventType;
@@ -59,6 +64,10 @@ public class EventDetailActivity extends AppCompatActivity {
     private RecyclerView rvMoreEvent;
     private Toolbar toolbar;
     private Event event;
+
+    // Get current user
+    private AuthHelper mAuthHelper = new AuthHelper(EventDetailActivity.this);
+    private DatabaseHelper mDatabaseHelper = new DatabaseHelper();
 
     //Comment section
     private CircleImageView ivProfileComment;
@@ -154,25 +163,11 @@ public class EventDetailActivity extends AppCompatActivity {
         });
 
         // Defining comment section
-        tvCommentCount = findViewById(R.id.textViewCommentCount);
-        rvComment = findViewById(R.id.recyclerViewComment);
-        tvNoComment = findViewById(R.id.textViewNoComment);
-        etNewComment = findViewById(R.id.editTextNewComment);
-        ivProfileComment = findViewById(R.id.imageViewProfileComment);
-        btSendComment = findViewById(R.id.buttonSendComment);
-        // When user writing comment, show send button
-        etNewComment.setOnFocusChangeListener((v, hasFocus) -> {
-            if (hasFocus) {
-                btSendComment.setVisibility(View.VISIBLE);
-                btGetTicket.setVisibility(View.GONE);
-            } else {
-                btSendComment.setVisibility(View.GONE);
-                btGetTicket.setVisibility(View.VISIBLE);
-            }
-        });
+        setUpCommentSection();
 
         // Defining more event section list
         setUpMoreEvent();
+
         btGetTicket = findViewById(R.id.buttonGetTicket);
     }
 
@@ -231,6 +226,55 @@ public class EventDetailActivity extends AppCompatActivity {
             tvSeeMore.setText("See more");
             tvDescription.setText(stringHelper.cutString(event.getDescription(), 183));
         }
+    }
+
+    private void setUpCommentSection() {
+        tvCommentCount = findViewById(R.id.textViewCommentCount);
+        rvComment = findViewById(R.id.recyclerViewComment);
+        tvNoComment = findViewById(R.id.textViewNoComment);
+        etNewComment = findViewById(R.id.editTextNewComment);
+        ivProfileComment = findViewById(R.id.imageViewProfileComment);
+        btSendComment = findViewById(R.id.buttonSendComment);
+        // When user writing comment, show send button
+        etNewComment.setOnFocusChangeListener((v, hasFocus) -> {
+            if (hasFocus) {
+                btSendComment.setVisibility(View.VISIBLE);
+                btGetTicket.setVisibility(View.GONE);
+            } else {
+                btSendComment.setVisibility(View.GONE);
+                btGetTicket.setVisibility(View.VISIBLE);
+            }
+        });
+        loadEventComment();
+        // Send comment action
+        btSendComment.setOnClickListener(v -> {
+            String newComment = etNewComment.getText().toString();
+            if ((newComment != null) && (!newComment.equals(""))) {
+                btSendComment.setText("Sending comment...");
+                btSendComment.setEnabled(false);
+
+                mDatabaseHelper.sendEventComment(event.getId(), mAuthHelper.getCurrentUser().getUid(), newComment, task -> {
+                    btSendComment.setText("Send comment");
+                    btSendComment.setEnabled(true);
+                    new HideKeyboard(EventDetailActivity.this).run();
+                    btSendComment.setVisibility(View.GONE);
+                    btGetTicket.setVisibility(View.VISIBLE);
+
+                    if (task.isSuccessful()) {
+                        etNewComment.setText("");
+                        loadEventComment();
+                    } else {
+                        Toast.makeText(getApplicationContext(),"An error occurred", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+        });
+    }
+
+    private void loadEventComment() {
+        mDatabaseHelper.loadEventComment(event.getId(), task -> {
+
+        });
     }
 
     @Override

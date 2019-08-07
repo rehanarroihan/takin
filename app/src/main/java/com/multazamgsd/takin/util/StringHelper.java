@@ -1,7 +1,10 @@
 package com.multazamgsd.takin.util;
 
+import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class StringHelper {
 
@@ -29,5 +32,11 @@ public class StringHelper {
             kursIndonesia.setDecimalFormatSymbols(formatRp);
             return kursIndonesia.format(Double.parseDouble(price));
         }
+    }
+
+    public String timeNow() {
+        DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+        Date date = new Date();
+        return dateFormat.format(date);
     }
 }

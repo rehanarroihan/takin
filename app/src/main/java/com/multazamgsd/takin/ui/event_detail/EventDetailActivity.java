@@ -14,6 +14,9 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -38,6 +41,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
+import de.hdodenhof.circleimageview.CircleImageView;
+
 public class EventDetailActivity extends AppCompatActivity {
     public static final String EXTRA_EVENT = "extra_event";
     public static final String TAG = EventDetailActivity.class.getSimpleName();
@@ -54,6 +59,15 @@ public class EventDetailActivity extends AppCompatActivity {
     private RecyclerView rvMoreEvent;
     private Toolbar toolbar;
     private Event event;
+
+    //Comment section
+    private CircleImageView ivProfileComment;
+    private EditText etNewComment;
+    private TextView tvCommentCount, tvNoComment;
+    private RecyclerView rvComment;
+
+    // Floating button
+    Button btGetTicket, btSendComment;
 
     private StringHelper stringHelper;
     private GoogleMap locationMap;
@@ -139,8 +153,27 @@ public class EventDetailActivity extends AppCompatActivity {
             locationMap.moveCamera(CameraUpdateFactory.newLatLngZoom(locationPin, 15.0f));
         });
 
+        // Defining comment section
+        tvCommentCount = findViewById(R.id.textViewCommentCount);
+        rvComment = findViewById(R.id.recyclerViewComment);
+        tvNoComment = findViewById(R.id.textViewNoComment);
+        etNewComment = findViewById(R.id.editTextNewComment);
+        ivProfileComment = findViewById(R.id.imageViewProfileComment);
+        btSendComment = findViewById(R.id.buttonSendComment);
+        // When user writing comment, show send button
+        etNewComment.setOnFocusChangeListener((v, hasFocus) -> {
+            if (hasFocus) {
+                btSendComment.setVisibility(View.VISIBLE);
+                btGetTicket.setVisibility(View.GONE);
+            } else {
+                btSendComment.setVisibility(View.GONE);
+                btGetTicket.setVisibility(View.VISIBLE);
+            }
+        });
+
         // Defining more event section list
         setUpMoreEvent();
+        btGetTicket = findViewById(R.id.buttonGetTicket);
     }
 
     private void setUpMoreEvent() {
@@ -225,5 +258,13 @@ public class EventDetailActivity extends AppCompatActivity {
                 break;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onBackPressed() {
+        etNewComment.setSelected(false);
+        btSendComment.setVisibility(View.GONE);
+        btGetTicket.setVisibility(View.VISIBLE);
+        super.onBackPressed();
     }
 }

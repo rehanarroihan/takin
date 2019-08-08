@@ -11,9 +11,9 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.request.RequestOptions;
+import com.github.kevinsawicki.timeago.TimeAgo;
 import com.multazamgsd.takin.R;
 import com.multazamgsd.takin.model.Comment;
-import com.multazamgsd.takin.model.Event;
 import com.multazamgsd.takin.util.GlideApp;
 import com.multazamgsd.takin.util.StringHelper;
 
@@ -55,23 +55,43 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.EventVie
     public void onBindViewHolder(@NonNull EventViewHolder holder, int position) {
         StringHelper stringHelper = new StringHelper();
         Comment commentItem = getCommentList().get(position);
+        String pict = commentItem.getPict();
         String nickName = commentItem.getNick_name();
 
         // Setting image
-        if (!commentItem.getPict().equals("")) {
-            GlideApp.with(holder.itemView.getContext())
-                    .load(commentItem.getNick_name())
-                    .apply(RequestOptions
-                            .placeholderOf(R.drawable.ic_image_grey_24dp)
-                            .error(R.drawable.ic_image_grey_24dp))
-                    .into(holder.ivPicture);
+        if (pict != null) {
+            if (!pict.equals("")) {
+                GlideApp.with(holder.itemView.getContext())
+                        .load(commentItem.getNick_name())
+                        .apply(RequestOptions
+                                .placeholderOf(R.drawable.ic_image_grey_24dp)
+                                .error(R.drawable.ic_image_grey_24dp))
+                        .into(holder.ivPicture);
+            }
         }
-        if (nickName.equals("")) nickName = "User";
+        if (nickName != null) {
+            if (nickName.equals("")) nickName = "User";
+        } else {
+            nickName = "User";
+        }
         holder.tvUsername.setText(stringHelper.cutString(nickName, 18));
-        holder.tvTime.setText(commentItem.getTime());
         holder.tvComment.setText(commentItem.getComment());
         holder.tvLike.setText(commentItem.getLike());
         holder.tvDislike.setText(commentItem.getDislike());
+
+        // Set up human readable
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+        Date date = null;
+        try {
+            date = sdf.parse(commentItem.getTime());
+            long milis = date.getTime();
+
+            TimeAgo time = new TimeAgo();
+            String minutes = time.timeAgo(milis - (15 * 60 * 1000));
+            holder.tvTime.setText(minutes);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override

@@ -3,17 +3,30 @@ package com.multazamgsd.takin.ui.main;
 import android.content.Intent;
 import android.os.Bundle;
 
+import com.bumptech.glide.request.RequestOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
+import androidx.annotation.NonNull;
 import androidx.core.view.GravityCompat;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 
+import android.util.Log;
 import android.view.MenuItem;
 import com.google.android.material.navigation.NavigationView;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.multazamgsd.takin.LoginActivity;
 import com.multazamgsd.takin.R;
+import com.multazamgsd.takin.model.User;
 import com.multazamgsd.takin.ui.home.HomeFragment;
 import com.multazamgsd.takin.util.AuthHelper;
+import com.multazamgsd.takin.util.DatabaseHelper;
+import com.multazamgsd.takin.util.GlideApp;
 
 import androidx.drawerlayout.widget.DrawerLayout;
 
@@ -26,10 +39,13 @@ import android.view.Menu;
 import android.view.View;
 import android.widget.TextView;
 
+import de.hdodenhof.circleimageview.CircleImageView;
+
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
     private static final String TAG = MainActivity.class.getSimpleName();
     private final String SELECTED_BOTTOM_MENU = "selected_bottom_menu";
     private AuthHelper authHelper;
+    private User loggedInUserdata = new User();
 
     private BottomNavigationView bottomNavigationView;
 
@@ -56,12 +72,26 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
-        //Get navigation drawer header layout
-        View navHeaderView = navigationDrawerView.getHeaderView(0);
-        TextView username = navHeaderView.findViewById(R.id.textViewDrawerUsername);
-        username.setText("Hello");
-        TextView email = navHeaderView.findViewById(R.id.textViewDrawerEmail);
-        email.setText(authHelper.getCurrentUser().getEmail());
+        // Getting userdata
+        new DatabaseHelper().getUserDetailFromUID(authHelper.getCurrentUser().getUid(), userResult -> {
+            loggedInUserdata = userResult;
+
+            //Get navigation drawer header layout
+            View navHeaderView = navigationDrawerView.getHeaderView(0);
+            CircleImageView ivUserPhoto = navHeaderView.findViewById(R.id.imageViewDrawerProfile);
+            if (!loggedInUserdata.getPhoto().equals("")) {
+                GlideApp.with(this)
+                        .load(loggedInUserdata.getPhoto())
+                        .apply(RequestOptions
+                                .placeholderOf(R.drawable.ic_image_grey_24dp)
+                                .error(R.drawable.ic_image_grey_24dp))
+                        .into(ivUserPhoto);
+            }
+            TextView username = navHeaderView.findViewById(R.id.textViewDrawerUsername);
+            username.setText(loggedInUserdata.getFull_name());
+            TextView email = navHeaderView.findViewById(R.id.textViewDrawerEmail);
+            email.setText(loggedInUserdata.getEmail());
+        });
 
         // Setting up bottom navigation
         bottomNavigationView = findViewById(R.id.nav_bottom_view);

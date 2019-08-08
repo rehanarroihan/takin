@@ -2,13 +2,22 @@ package com.multazamgsd.takin.util;
 
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.SetOptions;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.multazamgsd.takin.model.Comment;
 import com.multazamgsd.takin.model.Event;
+import com.multazamgsd.takin.model.User;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -59,27 +68,53 @@ public class DatabaseHelper {
         return eventRef.orderBy("publisher", Query.Direction.ASCENDING);
     }
 
-    public void countEventComment(String event_id, CountEventCommentListener callback) {
-        db.collection(TABLE_COMMENT_NAME)
-                .whereEqualTo("event_id", event_id)
-                .get().addOnCompleteListener(task -> {
-
-            if (task.isSuccessful()) {
-                callback.onComplete(String.valueOf(task.getResult().size()));
+    public void getUserDetailFromUID(String uid, GetUserDetailFromUIDListener callback) {
+        DocumentReference docRef = db.collection(TABLE_USER_NAME).document(uid);
+        docRef.get().addOnSuccessListener(documentSnapshot -> {
+            if (documentSnapshot.exists()) {
+                callback.onComplete(documentSnapshot.toObject(User.class));
+            } else {
+                Log.d(TAG, String.format("UID: %s not exist", uid));
+                callback.onComplete(documentSnapshot.toObject(User.class));
             }
         });
     }
 
+    public void countEventComment(String event_id, CountEventCommentListener callback) {
+        db.collection(TABLE_COMMENT_NAME)
+                .whereEqualTo("event_id", event_id)
+                .get().addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        callback.onComplete(String.valueOf(task.getResult().size()));
+                    }
+                });
+    }
+
     public void loadEventComment(String event_id, LoadEventCommentListener callback) {
+        ArrayList<Comment> commentResult = new ArrayList<>();
         db.collection(TABLE_COMMENT_NAME)
                 .whereEqualTo("event_id", event_id)
                 .limit(5)
                 .get().addOnCompleteListener(task -> {
-
-                if (task.isSuccessful()) {
-                    callback.onComplete(task);
-                }
-        });
+                    if (task.isSuccessful()) {
+                        for (DocumentSnapshot doc : task.getResult()) {
+                            Comment commentItem = new Comment();
+                            commentItem.setId(doc.getId());
+                            commentItem.setComment(doc.get("comment").toString());
+                            commentItem.setDislike(doc.get("dislike").toString());
+                            commentItem.setLike(doc.get("like").toString());
+                            commentItem.setTime(doc.get("time").toString());
+                            commentItem.setUid(doc.get("uid").toString());
+                            // Joining user doc to comment
+                            getUserDetailFromUID(commentItem.getUid(), userResult -> {
+                                commentItem.setPict(userResult.getPhoto());
+                                commentItem.setNick_name(userResult.getNick_name());
+                            });
+                            commentResult.add(commentItem);
+                        }
+                        callback.onComplete(commentResult);
+                    }
+                });
     }
 
     public void sendEventComment(String event_id, String uid, String comment, SendEventCommentListener callback) {
@@ -98,12 +133,16 @@ public class DatabaseHelper {
         });
     }
 
+    public interface GetUserDetailFromUIDListener {
+        void onComplete(User user);
+    }
+
     public interface CountEventCommentListener {
         void onComplete(String commentCount);
     }
 
     public interface LoadEventCommentListener {
-        void onComplete(Task task);
+        void onComplete(ArrayList<Comment> result);
     }
 
     public interface SendEventCommentListener {

@@ -33,9 +33,10 @@
                         </option>
                         <option name="values">
                           <map>
+                            <entry key="assetSourceType" value="FILE" />
                             <entry key="color" value="ffffff" />
-                            <entry key="outputName" value="ic_send_black_24dp" />
-                            <entry key="sourceFile" value="D:\discount(1).svg" />
+                            <entry key="outputName" value="ic_chat_bubble" />
+                            <entry key="sourceFile" value="D:\chat-bubble.svg" />
                           </map>
                         </option>
                       </PersistentState>

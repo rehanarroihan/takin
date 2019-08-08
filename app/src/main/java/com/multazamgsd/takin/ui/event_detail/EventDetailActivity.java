@@ -32,6 +32,7 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.multazamgsd.takin.R;
+import com.multazamgsd.takin.model.Comment;
 import com.multazamgsd.takin.model.Event;
 import com.multazamgsd.takin.util.AuthHelper;
 import com.multazamgsd.takin.util.DatabaseHelper;
@@ -74,6 +75,7 @@ public class EventDetailActivity extends AppCompatActivity {
     private EditText etNewComment;
     private TextView tvCommentCount, tvNoComment;
     private RecyclerView rvComment;
+    private CommentAdapter mCommentAdapter;
 
     // Floating button
     Button btGetTicket, btSendComment;
@@ -245,7 +247,33 @@ public class EventDetailActivity extends AppCompatActivity {
                 btGetTicket.setVisibility(View.VISIBLE);
             }
         });
+
+        // Prepare recyclerview
+        mCommentAdapter = new CommentAdapter(this, new CommentAdapter.CommentAdapterListener() {
+            @Override
+            public void onCommentLike(int itemPosition) {
+
+            }
+
+            @Override
+            public void onCommentDislike(int itemPosition) {
+
+            }
+
+            @Override
+            public void onCommentReply(int itemPosition) {
+
+            }
+        });
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this, RecyclerView.VERTICAL, false);
+        RecyclerView.ItemDecoration dividerItemDecoration = new DividerItemDecorator(ContextCompat.getDrawable(this, R.drawable.divider));
+        rvComment.setLayoutManager(layoutManager);
+        rvComment.addItemDecoration(dividerItemDecoration);
+        rvComment.setHasFixedSize(true);
+        rvComment.setNestedScrollingEnabled(false);
+        rvComment.setAdapter(mCommentAdapter);
         loadEventComment();
+
         // Send comment action
         btSendComment.setOnClickListener(v -> {
             String newComment = etNewComment.getText().toString();
@@ -280,7 +308,8 @@ public class EventDetailActivity extends AppCompatActivity {
                 rvComment.setVisibility(View.VISIBLE);
 
                 mDatabaseHelper.loadEventComment(event.getId(), task -> {
-
+                        mCommentAdapter.setListComment(task);
+                        mCommentAdapter.notifyDataSetChanged();
                 });
             }
         });

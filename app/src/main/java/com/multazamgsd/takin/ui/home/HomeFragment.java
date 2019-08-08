@@ -20,6 +20,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.multazamgsd.takin.R;
 import com.multazamgsd.takin.model.Event;
 import com.multazamgsd.takin.ui.event_detail.EventDetailActivity;
+import com.multazamgsd.takin.util.DatabaseHelper;
 import com.multazamgsd.takin.util.DividerItemDecorator;
 
 import java.util.ArrayList;

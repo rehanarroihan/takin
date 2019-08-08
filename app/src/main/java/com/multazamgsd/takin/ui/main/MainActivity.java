@@ -8,6 +8,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import androidx.core.view.GravityCompat;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 
+import android.util.Log;
 import android.view.MenuItem;
 import com.google.android.material.navigation.NavigationView;
 import com.multazamgsd.takin.R;
@@ -16,6 +17,8 @@ import com.multazamgsd.takin.ui.home.HomeFragment;
 import com.multazamgsd.takin.util.AuthHelper;
 import com.multazamgsd.takin.util.DatabaseHelper;
 import com.multazamgsd.takin.util.GlideApp;
+import com.multazamgsd.takin.util.GlobalConfig;
+import com.pixplicity.easyprefs.library.Prefs;
 
 import androidx.drawerlayout.widget.DrawerLayout;
 
@@ -33,8 +36,6 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
     private static final String TAG = MainActivity.class.getSimpleName();
     private final String SELECTED_BOTTOM_MENU = "selected_bottom_menu";
-    private AuthHelper authHelper;
-    private User loggedInUserdata = new User();
 
     private BottomNavigationView bottomNavigationView;
 
@@ -58,18 +59,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         //Get navigation drawer header layout
         View navHeaderView = navigationDrawerView.getHeaderView(0);
         CircleImageView ivUserPhoto = navHeaderView.findViewById(R.id.imageViewDrawerProfile);
-        if (!loggedInUserdata.getPhoto().equals("")) {
+        if (!Prefs.getString(GlobalConfig.PHOTO_PREFS, null).equals("")) {
             GlideApp.with(this)
-                    .load(loggedInUserdata.getPhoto())
+                    .load(Prefs.getString(GlobalConfig.PHOTO_PREFS, null))
                     .apply(RequestOptions
                             .placeholderOf(R.drawable.ic_image_grey_24dp)
                             .error(R.drawable.ic_image_grey_24dp))
                     .into(ivUserPhoto);
         }
         TextView username = navHeaderView.findViewById(R.id.textViewDrawerUsername);
-        username.setText(String.format("%s %s", loggedInUserdata.getFirst_name(), loggedInUserdata.getLast_name()));
+        username.setText(String.format("%s %s", Prefs.getString(GlobalConfig.FIRST_NAME_PREFS, null), Prefs.getString(GlobalConfig.LAST_NAME_PREFS, null)));
         TextView email = navHeaderView.findViewById(R.id.textViewDrawerEmail);
-        email.setText(loggedInUserdata.getEmail());
+        email.setText(Prefs.getString(GlobalConfig.EMAIL_PREFS, null));
 
         // Setting up bottom navigation
         bottomNavigationView = findViewById(R.id.nav_bottom_view);
@@ -116,7 +117,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         } else if (id == R.id.nav_liked_event) {
 
         } else if (id == R.id.nav_logout) {
-            authHelper.doLogout();
+            new AuthHelper(this).doLogout();
         }
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);

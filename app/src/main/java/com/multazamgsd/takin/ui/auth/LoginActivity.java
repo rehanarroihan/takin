@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
@@ -18,14 +19,21 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.multazamgsd.takin.R;
+import com.multazamgsd.takin.model.LoginRequest;
+import com.multazamgsd.takin.model.User;
 import com.multazamgsd.takin.ui.main.MainActivity;
+import com.multazamgsd.takin.ui.main.SplashActivity;
 import com.multazamgsd.takin.util.AuthHelper;
 import com.multazamgsd.takin.util.DatabaseHelper;
 import com.multazamgsd.takin.util.HideKeyboard;
+import com.multazamgsd.takin.util.StringHelper;
 
 public class LoginActivity extends AppCompatActivity {
     private EditText etEmail, etPassword;
@@ -82,7 +90,18 @@ public class LoginActivity extends AppCompatActivity {
             Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
             try {
                 GoogleSignInAccount account = task.getResult(ApiException.class);
-                authHelper.firebaseAuthWithGoogle(account);
+                authHelper.firebaseAuthWithGoogle(account, firebaseAuthWithGoogleTask -> {
+                    if (firebaseAuthWithGoogleTask.isSuccessful()) {
+                        mDatabaseHelper.updateUserDataOnLogin(mAuth.getCurrentUser().getUid(), onComplete -> {
+                            if (onComplete.isSuccessful()) {
+                                startActivity(new Intent(LoginActivity.this, SplashActivity.class));
+                                finish();
+                            }
+                        });
+                    } else {
+                        Toast.makeText(this, "Sign up error, please try again", Toast.LENGTH_LONG).show();
+                    }
+                });
             } catch (ApiException e) {
                 Toast.makeText(this,"Sign up error, please try again", Toast.LENGTH_LONG).show();
             }
@@ -99,32 +118,30 @@ public class LoginActivity extends AppCompatActivity {
         hideKeyboard.run();
 
         mAuth.signInWithEmailAndPassword(email, password)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        etEmail.setEnabled(true);
-                        etPassword.setEnabled(true);
-                        btEmailSignIn.setText("Sign In");
-                        btEmailSignIn.setEnabled(true);
+                .addOnCompleteListener(this, signInEmailTask -> {
+                    // Updating userdata (last login info)
+                    if (signInEmailTask.isSuccessful()) {
+                        mDatabaseHelper.updateUserDataOnLogin(mAuth.getCurrentUser().getUid(), updateUserDataTask -> {
+                            if (updateUserDataTask.isSuccessful()) {
+                                etEmail.setEnabled(true);
+                                etPassword.setEnabled(true);
+                                btEmailSignIn.setText("Sign In");
+                                btEmailSignIn.setEnabled(true);
 
-                        if (task.isSuccessful()) {
-                            mDatabaseHelper.updateUserData(
-                                    "email",
-                                    mAuth.getCurrentUser().getEmail(),
-                                    mAuth.getCurrentUser().getUid(),
-                                    "",
-                                    "",
-                                    "",
-                                    password
-                            );
-
-                            Toast.makeText(LoginActivity.this,"Sign in success", Toast.LENGTH_LONG).show();
-                            startActivity(new Intent(LoginActivity.this, MainActivity.class));
-                            finish();
-                        } else {
-                            Toast.makeText(LoginActivity.this,"Sign in error, please try again", Toast.LENGTH_LONG).show();
-                        }
+                                Toast.makeText(LoginActivity.this,"Sign in success", Toast.LENGTH_LONG).show();
+                                startActivity(new Intent(LoginActivity.this, SplashActivity.class));
+                                finish();
+                            } else {
+                                Toast.makeText(LoginActivity.this,"Updating data error, please try again", Toast.LENGTH_LONG).show();
+                            }
+                        });
                     }
+                }).addOnFailureListener(e -> {
+                    etEmail.setEnabled(true);
+                    etPassword.setEnabled(true);
+                    btEmailSignIn.setText("Sign In");
+                    btEmailSignIn.setEnabled(true);
+                    Toast.makeText(LoginActivity.this, e.getMessage(), Toast.LENGTH_LONG).show();
                 });
     }
 

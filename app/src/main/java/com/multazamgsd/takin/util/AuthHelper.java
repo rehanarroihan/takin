@@ -3,6 +3,7 @@ package com.multazamgsd.takin.util;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -20,6 +21,7 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.gson.GsonBuilder;
 import com.multazamgsd.takin.model.User;
 import com.multazamgsd.takin.ui.auth.LoginActivity;
 import com.multazamgsd.takin.ui.main.MainActivity;
@@ -53,53 +55,32 @@ public class AuthHelper {
                 .build();
 
         googleApiClient = new GoogleApiClient.Builder(activity)
-                .enableAutoManage(fragmentActivity, new GoogleApiClient.OnConnectionFailedListener() {
-                    @Override
-                    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-                        Toast.makeText(activity, "Connection error, please try again", Toast.LENGTH_LONG).show();
-                    }
-                })
-                .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
+                .enableAutoManage(fragmentActivity, connectionResult ->
+                        Toast.makeText(activity, "Connection error, please try again", Toast.LENGTH_LONG).show()
+                ).addApi(Auth.GOOGLE_SIGN_IN_API, gso)
                 .build();
 
         Intent intent = Auth.GoogleSignInApi.getSignInIntent(googleApiClient);
         activity.startActivityForResult(intent, RC_SIGN_IN);
     }
 
-    public void firebaseAuthWithGoogle(final GoogleSignInAccount acct) {
+    public void firebaseAuthWithGoogle(final GoogleSignInAccount acct, FirebaseAuthWithGoogleListener callback) {
         AuthCredential credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);
-        mAuth.signInWithCredential(credential).addOnCompleteListener(activity, task -> {
+        mAuth.signInWithCredential(credential).addOnCompleteListener(activity, signInWithCredentialTask -> {
             googleApiClient.stopAutoManage(fragmentActivity);
             googleApiClient.disconnect();
-            if (task.isSuccessful()) {
-                User user = new User();
-                user.setUid(mAuth.getCurrentUser().getUid());
-                user.setAuth_type("google");
-                user.setFirst_name(mAuth.getCurrentUser().getEmail().split("@")[0]);
-                user.setLast_name("");
-                user.setInstitution("");
-                user.setId_no("");
-                user.setPhone_number("");
-                user.setPhoto("");
-                user.setLast_login(new StringHelper().timeNow());
-                user.setPoint("0");
-                user.setPassword("");
-                user.setEmail(mAuth.getCurrentUser().getEmail());
-                mDatabaseHelper.updateUserData(user, onComplete -> {
-                    if (onComplete.isSuccessful()) {
-                        Toast.makeText(activity,"Sign up success", Toast.LENGTH_LONG).show();
-                        activity.startActivity(new Intent(activity, MainActivity.class));
-                        activity.finish();
-                    }
-                });
-            } else {
-                Toast.makeText(activity,"Sign up error, please try again", Toast.LENGTH_LONG).show();
+            if (signInWithCredentialTask.isComplete()) {
+                callback.onComplete(signInWithCredentialTask);
             }
         });
     }
 
     public boolean isLoggedIn() {
-        return mAuth.getCurrentUser() != null;
+        if (mAuth.getCurrentUser() == null) {
+            return false;
+        } else {
+            return true;
+        }
     }
 
     public void updateUserdata(User user) {
@@ -136,5 +117,9 @@ public class AuthHelper {
         });
         AlertDialog alert = alertBuilder.create();
         alert.show();
+    }
+
+    public interface FirebaseAuthWithGoogleListener {
+        void onComplete(Task firebaseAuthWithGoogleTask);
     }
 }

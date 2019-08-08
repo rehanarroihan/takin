@@ -17,6 +17,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.multazamgsd.takin.model.Comment;
 import com.multazamgsd.takin.model.Event;
+import com.multazamgsd.takin.model.LoginRequest;
 import com.multazamgsd.takin.model.User;
 
 import java.text.DateFormat;
@@ -41,6 +42,13 @@ public class DatabaseHelper {
     private String timeNow = new StringHelper().timeNow(); //yyyy/MM/dd HH:mm:ss
 
     public DatabaseHelper() {}
+
+    public void updateUserDataOnLogin(String uid, UpdateUserDataListener callback) {
+        db.collection(TABLE_USER_NAME)
+                .document(uid)
+                .update("last_login", new StringHelper().timeNow())
+                .addOnCompleteListener(task -> callback.onComplete(task));
+    }
 
     public void updateUserData(User user, UpdateUserDataListener callback) {
         db.collection(TABLE_USER_NAME)

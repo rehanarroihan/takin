@@ -1,4 +1,4 @@
-package com.multazamgsd.takin;
+package com.multazamgsd.takin.ui.auth;
 
 import android.content.Intent;
 import android.graphics.Color;
@@ -21,6 +21,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.multazamgsd.takin.R;
 import com.multazamgsd.takin.ui.main.MainActivity;
 import com.multazamgsd.takin.util.AuthHelper;
 import com.multazamgsd.takin.util.DatabaseHelper;

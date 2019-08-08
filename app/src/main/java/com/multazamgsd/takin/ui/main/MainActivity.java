@@ -4,23 +4,14 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import com.bumptech.glide.request.RequestOptions;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
-import androidx.annotation.NonNull;
 import androidx.core.view.GravityCompat;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 
-import android.util.Log;
 import android.view.MenuItem;
 import com.google.android.material.navigation.NavigationView;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.multazamgsd.takin.LoginActivity;
+import com.multazamgsd.takin.ui.auth.LoginActivity;
 import com.multazamgsd.takin.R;
 import com.multazamgsd.takin.model.User;
 import com.multazamgsd.takin.ui.home.HomeFragment;

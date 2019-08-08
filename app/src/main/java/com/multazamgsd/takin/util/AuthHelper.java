@@ -20,7 +20,7 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
-import com.multazamgsd.takin.LoginActivity;
+import com.multazamgsd.takin.ui.auth.LoginActivity;
 import com.multazamgsd.takin.ui.main.MainActivity;
 import com.multazamgsd.takin.R;
 

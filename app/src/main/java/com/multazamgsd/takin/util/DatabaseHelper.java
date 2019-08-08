@@ -57,6 +57,19 @@ public class DatabaseHelper {
                 .addOnCompleteListener(task -> callback.onComplete(task));
     }
 
+    public void checkFieldExist(String table, String id, CheckFieldExistListener callback) {
+        DocumentReference docRef = db.collection(table).document(id);
+        docRef.get().addOnSuccessListener(documentSnapshot -> {
+            if (documentSnapshot.exists()) {
+                callback.onComplete(true);
+            } else {
+                callback.onComplete(false);
+            }
+        }).addOnFailureListener(e -> {
+            callback.onComplete(false);
+        });
+    }
+
     public Query getEventList() {
         return eventRef.orderBy("publisher", Query.Direction.ASCENDING);
     }
@@ -124,6 +137,10 @@ public class DatabaseHelper {
                 callback.onComplete(task);
             }
         });
+    }
+
+    public interface CheckFieldExistListener {
+        void onComplete(Boolean isExist);
     }
 
     public interface UpdateUserDataListener {

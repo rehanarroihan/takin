@@ -100,16 +100,25 @@ public class LoginActivity extends AppCompatActivity {
                 authHelper.firebaseAuthWithGoogle(account, firebaseAuthWithGoogleTask -> {
                     if (firebaseAuthWithGoogleTask.isSuccessful()) {
                         pd.show();
-                        mDatabaseHelper.updateUserDataOnLogin(mAuth.getCurrentUser().getUid(), onComplete -> {
-                            pd.dismiss();
-                            if (onComplete.isSuccessful()) {
-                                startActivity(new Intent(LoginActivity.this, SplashActivity.class));
-                                finish();
+                        // If userdata not exist in db, then beg user to sign up
+                        mDatabaseHelper.checkFieldExist("user", mAuth.getCurrentUser().getUid(), isExist -> {
+                            if (isExist) {
+                                mDatabaseHelper.updateUserDataOnLogin(mAuth.getCurrentUser().getUid(), onComplete -> {
+                                    pd.dismiss();
+                                    if (onComplete.isSuccessful()) {
+                                        startActivity(new Intent(LoginActivity.this, SplashActivity.class));
+                                        finish();
+                                    } else {
+                                        Toast.makeText(this, "Error updating data, please try again", Toast.LENGTH_LONG).show();
+                                    }
+                                });
                             } else {
-                                Toast.makeText(this, "Error updating data, please try again", Toast.LENGTH_LONG).show();
+                                pd.dismiss();
+                                Toast.makeText(this, "You are not registered, please Sign Up first", Toast.LENGTH_LONG).show();
                             }
                         });
                     } else {
+                        pd.dismiss();
                         Toast.makeText(this, "Sign up error, please try again", Toast.LENGTH_LONG).show();
                     }
                 });

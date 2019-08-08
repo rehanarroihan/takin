@@ -42,26 +42,11 @@ public class DatabaseHelper {
 
     public DatabaseHelper() {}
 
-    public void updateUserData(String auth_type, String email, String uid, String full_name, String nick_name, String photo, String password) {
-        Map<String, Object> user = new HashMap<>();
-        user.put("auth_type", auth_type);
-        user.put("email", email);
-        user.put("full_name", full_name);
-        user.put("nick_name", nick_name);
-        user.put("photo", photo);
-        user.put("password", password);
-        user.put("last_login", timeNow);
-
+    public void updateUserData(User user, UpdateUserDataListener callback) {
         db.collection(TABLE_USER_NAME)
-                .document(uid)
+                .document(user.getUid())
                 .set(user, SetOptions.merge())
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        Log.d(TAG, "insertUserData operation successful");
-                    } else {
-                        Log.d(TAG, "insertUserData operation failed");
-                    }
-                });
+                .addOnCompleteListener(task -> callback.onComplete(task));
     }
 
     public Query getEventList() {
@@ -108,7 +93,7 @@ public class DatabaseHelper {
                             // Joining user doc to comment
                             getUserDetailFromUID(commentItem.getUid(), userResult -> {
                                 commentItem.setPict(userResult.getPhoto());
-                                commentItem.setNick_name(userResult.getNick_name());
+                                commentItem.setNick_name(userResult.getFirst_name());
                             });
                             commentResult.add(commentItem);
                         }
@@ -131,6 +116,10 @@ public class DatabaseHelper {
                 callback.onComplete(task);
             }
         });
+    }
+
+    public interface UpdateUserDataListener {
+        void onComplete(Task task);
     }
 
     public interface GetUserDetailFromUIDListener {

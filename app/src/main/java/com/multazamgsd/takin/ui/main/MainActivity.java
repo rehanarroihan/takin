@@ -1,6 +1,5 @@
 package com.multazamgsd.takin.ui.main;
 
-import android.content.Intent;
 import android.os.Bundle;
 
 import com.bumptech.glide.request.RequestOptions;
@@ -11,7 +10,6 @@ import androidx.appcompat.app.ActionBarDrawerToggle;
 
 import android.view.MenuItem;
 import com.google.android.material.navigation.NavigationView;
-import com.multazamgsd.takin.ui.auth.LoginActivity;
 import com.multazamgsd.takin.R;
 import com.multazamgsd.takin.model.User;
 import com.multazamgsd.takin.ui.home.HomeFragment;
@@ -48,12 +46,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        authHelper = new AuthHelper(this);
-        if(authHelper.isLoggedIn()) {
-            startActivity(new Intent(this, LoginActivity.class));
-            finish();
-        }
-
         //Setting up drawer navigation
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         NavigationView navigationDrawerView = findViewById(R.id.nav_drawer_view);
@@ -63,26 +55,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
-        // Getting userdata
-        new DatabaseHelper().getUserDetailFromUID(authHelper.getCurrentUser().getUid(), userResult -> {
-            loggedInUserdata = userResult;
-
-            //Get navigation drawer header layout
-            View navHeaderView = navigationDrawerView.getHeaderView(0);
-            CircleImageView ivUserPhoto = navHeaderView.findViewById(R.id.imageViewDrawerProfile);
-            if (!loggedInUserdata.getPhoto().equals("")) {
-                GlideApp.with(this)
-                        .load(loggedInUserdata.getPhoto())
-                        .apply(RequestOptions
-                                .placeholderOf(R.drawable.ic_image_grey_24dp)
-                                .error(R.drawable.ic_image_grey_24dp))
-                        .into(ivUserPhoto);
-            }
-            TextView username = navHeaderView.findViewById(R.id.textViewDrawerUsername);
-            username.setText(loggedInUserdata.getFull_name());
-            TextView email = navHeaderView.findViewById(R.id.textViewDrawerEmail);
-            email.setText(loggedInUserdata.getEmail());
-        });
+        //Get navigation drawer header layout
+        View navHeaderView = navigationDrawerView.getHeaderView(0);
+        CircleImageView ivUserPhoto = navHeaderView.findViewById(R.id.imageViewDrawerProfile);
+        if (!loggedInUserdata.getPhoto().equals("")) {
+            GlideApp.with(this)
+                    .load(loggedInUserdata.getPhoto())
+                    .apply(RequestOptions
+                            .placeholderOf(R.drawable.ic_image_grey_24dp)
+                            .error(R.drawable.ic_image_grey_24dp))
+                    .into(ivUserPhoto);
+        }
+        TextView username = navHeaderView.findViewById(R.id.textViewDrawerUsername);
+        username.setText(String.format("%s %s", loggedInUserdata.getFirst_name(), loggedInUserdata.getLast_name()));
+        TextView email = navHeaderView.findViewById(R.id.textViewDrawerEmail);
+        email.setText(loggedInUserdata.getEmail());
 
         // Setting up bottom navigation
         bottomNavigationView = findViewById(R.id.nav_bottom_view);

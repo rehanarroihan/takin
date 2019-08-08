@@ -19,10 +19,12 @@ import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.multazamgsd.takin.R;
+import com.multazamgsd.takin.model.User;
 import com.multazamgsd.takin.ui.main.MainActivity;
 import com.multazamgsd.takin.util.AuthHelper;
 import com.multazamgsd.takin.util.DatabaseHelper;
 import com.multazamgsd.takin.util.HideKeyboard;
+import com.multazamgsd.takin.util.StringHelper;
 
 public class RegisterActivity extends AppCompatActivity {
     private EditText etEmail, etPassword;
@@ -98,18 +100,28 @@ public class RegisterActivity extends AppCompatActivity {
                     btEmailSignUp.setEnabled(true);
 
                     if (task.isSuccessful()) {
-                        mDatabaseHelper.updateUserData(
-                                "email",
-                                mAuth.getCurrentUser().getEmail(),
-                                mAuth.getCurrentUser().getUid(),
-                                "",
-                                mAuth.getCurrentUser().getEmail().split("@")[0],
-                                "",
-                                password
-                        );
-                        Toast.makeText(RegisterActivity.this,"Sign up success", Toast.LENGTH_LONG).show();
-                        startActivity(new Intent(RegisterActivity.this, MainActivity.class));
-                        finish();
+                        User user = new User();
+                        user.setUid(mAuth.getCurrentUser().getUid());
+                        user.setAuth_type("email");
+                        user.setFirst_name(mAuth.getCurrentUser().getEmail().split("@")[0]);
+                        user.setLast_name("");
+                        user.setInstitution("");
+                        user.setId_no("");
+                        user.setPhone_number("");
+                        user.setPhoto("");
+                        user.setLast_login(new StringHelper().timeNow());
+                        user.setPoint("0");
+                        user.setPassword(password);
+                        user.setEmail(mAuth.getCurrentUser().getEmail());
+                        mDatabaseHelper.updateUserData(user, onSuccess -> {
+                            if (onSuccess.isSuccessful()) {
+                                Toast.makeText(RegisterActivity.this,"Sign up success", Toast.LENGTH_LONG).show();
+                                startActivity(new Intent(RegisterActivity.this, MainActivity.class));
+                                finish();
+                            } else {
+                                Toast.makeText(RegisterActivity.this,"Error updating data, please try again", Toast.LENGTH_LONG).show();
+                            }
+                        });
                     } else {
                         Toast.makeText(RegisterActivity.this,"Sign up error, please try again", Toast.LENGTH_LONG).show();
                     }

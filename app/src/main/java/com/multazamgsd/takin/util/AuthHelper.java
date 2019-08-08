@@ -20,9 +20,11 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.multazamgsd.takin.model.User;
 import com.multazamgsd.takin.ui.auth.LoginActivity;
 import com.multazamgsd.takin.ui.main.MainActivity;
 import com.multazamgsd.takin.R;
+import com.pixplicity.easyprefs.library.Prefs;
 
 /*
 * Commonly accessed from no need auth activity
@@ -66,36 +68,53 @@ public class AuthHelper {
 
     public void firebaseAuthWithGoogle(final GoogleSignInAccount acct) {
         AuthCredential credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);
-        mAuth.signInWithCredential(credential)
-                .addOnCompleteListener(activity, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        googleApiClient.stopAutoManage(fragmentActivity);
-                        googleApiClient.disconnect();
-
-                        if (task.isSuccessful()) {
-                            mDatabaseHelper.updateUserData(
-                                    "google",
-                                    mAuth.getCurrentUser().getEmail(),
-                                    mAuth.getCurrentUser().getUid(),
-                                    "",
-                                    "",
-                                    "",
-                                    ""
-                            );
-
-                            Toast.makeText(activity,"Sign up success", Toast.LENGTH_LONG).show();
-                            activity.startActivity(new Intent(activity, MainActivity.class));
-                            activity.finish();
-                        } else {
-                            Toast.makeText(activity,"Sign up error, please try again", Toast.LENGTH_LONG).show();
-                        }
+        mAuth.signInWithCredential(credential).addOnCompleteListener(activity, task -> {
+            googleApiClient.stopAutoManage(fragmentActivity);
+            googleApiClient.disconnect();
+            if (task.isSuccessful()) {
+                User user = new User();
+                user.setUid(mAuth.getCurrentUser().getUid());
+                user.setAuth_type("google");
+                user.setFirst_name(mAuth.getCurrentUser().getEmail().split("@")[0]);
+                user.setLast_name("");
+                user.setInstitution("");
+                user.setId_no("");
+                user.setPhone_number("");
+                user.setPhoto("");
+                user.setLast_login(new StringHelper().timeNow());
+                user.setPoint("0");
+                user.setPassword("");
+                user.setEmail(mAuth.getCurrentUser().getEmail());
+                mDatabaseHelper.updateUserData(user, onComplete -> {
+                    if (onComplete.isSuccessful()) {
+                        Toast.makeText(activity,"Sign up success", Toast.LENGTH_LONG).show();
+                        activity.startActivity(new Intent(activity, MainActivity.class));
+                        activity.finish();
                     }
                 });
+            } else {
+                Toast.makeText(activity,"Sign up error, please try again", Toast.LENGTH_LONG).show();
+            }
+        });
     }
 
     public boolean isLoggedIn() {
-        return mAuth.getCurrentUser() == null;
+        return mAuth.getCurrentUser() != null;
+    }
+
+    public void updateUserdata(User user) {
+        Prefs.putString(GlobalConfig.UID_PREFS, user.getUid());
+        Prefs.putString(GlobalConfig.AUTH_TYPE_PREFS, user.getAuth_type());
+        Prefs.putString(GlobalConfig.EMAIL_PREFS, user.getEmail());
+        Prefs.putString(GlobalConfig.FIRST_NAME_PREFS, user.getFirst_name());
+        Prefs.putString(GlobalConfig.LAST_NAME_PREFS, user.getLast_name());
+        Prefs.putString(GlobalConfig.INSTITUTION_PREFS, user.getInstitution());
+        Prefs.putString(GlobalConfig.ID_NO_PREFS, user.getId_no());
+        Prefs.putString(GlobalConfig.PHONE_NUMBER_PREFS, user.getPhone_number());
+        Prefs.putString(GlobalConfig.PHOTO_PREFS, user.getPhoto());
+        Prefs.putString(GlobalConfig.LAST_LOGIN_PREFS, user.getLast_login());
+        Prefs.putString(GlobalConfig.POINT_PREFS, user.getPoint());
+        Prefs.putString(GlobalConfig.PASSWORD_PREFS, user.getPassword());
     }
 
     public FirebaseUser getCurrentUser() {

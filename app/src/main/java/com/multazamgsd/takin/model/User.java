@@ -7,23 +7,31 @@ public class User {
     private String uid;
     private String auth_type;
     private String email;
-    private String full_name;
-    private String last_login;
-    private String nick_name;
-    private String password;
+    private String first_name;
+    private String last_name;
+    private String institution;
+    private String id_no;
+    private String phone_number;
     private String photo;
+    private String last_login;
+    private String point;
+    private String password;
 
     public User() {}
 
-    public User(String uid, String auth_type, String email, String full_name, String last_login, String nick_name, String password, String photo) {
+    public User(String uid, String auth_type, String email, String first_name, String last_name, String institution, String id_no, String phone_number, String photo, String last_login, String point, String password) {
         this.uid = uid;
         this.auth_type = auth_type;
         this.email = email;
-        this.full_name = full_name;
-        this.last_login = last_login;
-        this.nick_name = nick_name;
-        this.password = password;
+        this.first_name = first_name;
+        this.last_name = last_name;
+        this.institution = institution;
+        this.id_no = id_no;
+        this.phone_number = phone_number;
         this.photo = photo;
+        this.last_login = last_login;
+        this.point = point;
+        this.password = password;
     }
 
     public String getUid() {
@@ -50,12 +58,52 @@ public class User {
         this.email = email;
     }
 
-    public String getFull_name() {
-        return full_name;
+    public String getFirst_name() {
+        return first_name;
     }
 
-    public void setFull_name(String full_name) {
-        this.full_name = full_name;
+    public void setFirst_name(String first_name) {
+        this.first_name = first_name;
+    }
+
+    public String getLast_name() {
+        return last_name;
+    }
+
+    public void setLast_name(String last_name) {
+        this.last_name = last_name;
+    }
+
+    public String getInstitution() {
+        return institution;
+    }
+
+    public void setInstitution(String institution) {
+        this.institution = institution;
+    }
+
+    public String getId_no() {
+        return id_no;
+    }
+
+    public void setId_no(String id_no) {
+        this.id_no = id_no;
+    }
+
+    public String getPhone_number() {
+        return phone_number;
+    }
+
+    public void setPhone_number(String phone_number) {
+        this.phone_number = phone_number;
+    }
+
+    public String getPhoto() {
+        return photo;
+    }
+
+    public void setPhoto(String photo) {
+        this.photo = photo;
     }
 
     public String getLast_login() {
@@ -66,12 +114,12 @@ public class User {
         this.last_login = last_login;
     }
 
-    public String getNick_name() {
-        return nick_name;
+    public String getPoint() {
+        return point;
     }
 
-    public void setNick_name(String nick_name) {
-        this.nick_name = nick_name;
+    public void setPoint(String point) {
+        this.point = point;
     }
 
     public String getPassword() {
@@ -80,13 +128,5 @@ public class User {
 
     public void setPassword(String password) {
         this.password = password;
-    }
-
-    public String getPhoto() {
-        return photo;
-    }
-
-    public void setPhoto(String photo) {
-        this.photo = photo;
     }
 }

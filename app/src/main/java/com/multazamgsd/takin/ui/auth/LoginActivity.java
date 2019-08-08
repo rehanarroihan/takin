@@ -1,5 +1,6 @@
 package com.multazamgsd.takin.ui.auth;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Build;
@@ -43,6 +44,7 @@ public class LoginActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private AuthHelper authHelper;
     private DatabaseHelper mDatabaseHelper;
+    private ProgressDialog pd;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +56,11 @@ public class LoginActivity extends AppCompatActivity {
         mDatabaseHelper = new DatabaseHelper();
 
         mAuth = FirebaseAuth.getInstance();
+
+        pd = new ProgressDialog(this);
+        pd.setMessage("Please wait...");
+        pd.setCancelable(false);
+        pd.setIndeterminate(true);
 
         etEmail = findViewById(R.id.editTextEmail);
         etPassword = findViewById(R.id.editTextPassword);
@@ -92,10 +99,14 @@ public class LoginActivity extends AppCompatActivity {
                 GoogleSignInAccount account = task.getResult(ApiException.class);
                 authHelper.firebaseAuthWithGoogle(account, firebaseAuthWithGoogleTask -> {
                     if (firebaseAuthWithGoogleTask.isSuccessful()) {
+                        pd.show();
                         mDatabaseHelper.updateUserDataOnLogin(mAuth.getCurrentUser().getUid(), onComplete -> {
+                            pd.dismiss();
                             if (onComplete.isSuccessful()) {
                                 startActivity(new Intent(LoginActivity.this, SplashActivity.class));
                                 finish();
+                            } else {
+                                Toast.makeText(this, "Error updating data, please try again", Toast.LENGTH_LONG).show();
                             }
                         });
                     } else {

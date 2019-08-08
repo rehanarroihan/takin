@@ -108,6 +108,7 @@ public class AuthHelper {
         alertBuilder.setTitle("Logout");
         alertBuilder.setMessage("Are you sure want to logout ?");
         alertBuilder.setPositiveButton("Yes", (dialog, which) -> {
+            Prefs.clear();
             mAuth.signOut();
             activity.startActivity(new Intent(activity, LoginActivity.class));
             activity.finish();

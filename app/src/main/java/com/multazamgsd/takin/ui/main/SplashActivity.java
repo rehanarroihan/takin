@@ -23,21 +23,54 @@ public class SplashActivity extends AppCompatActivity {
         setContentView(R.layout.activity_splash);
 
         authHelper = new AuthHelper(this);
+        String institution = Prefs.getString(GlobalConfig.INSTITUTION_PREFS, null);
         if(authHelper.isLoggedIn()) {
-            // Getting userdata
-            new DatabaseHelper().getUserDetailFromUID(authHelper.getCurrentUser().getUid(), userResult -> {
-                authHelper.updateUserdata(userResult);
-                if (userResult.getFirst_name().equals("")) {
+            // User is need to re-download userdata
+            if (institution == null) {
+                // Getting userdata
+                new DatabaseHelper().getUserDetailFromUID(authHelper.getCurrentUser().getUid(), userResult -> {
+                    authHelper.updateUserdata(userResult);
+                    // User is need to fill bio
+                    if (isNeedFillBiodata(userResult.getInstitution())) {
+                        startActivity(new Intent(this, BiodataActivity.class));
+                        finish();
+                        return;
+                    }
+                    // User no need fill bio
+                    toMainScreen();
+                });
+            } else {
+                // User is need to fill bio
+                if (isNeedFillBiodata(institution)) {
                     startActivity(new Intent(this, BiodataActivity.class));
                     finish();
                     return;
+                } else {
+                    // Data is okay
+                    toMainScreen();
                 }
-                startActivity(new Intent(this, MainActivity.class));
-                finish();
-            });
+            }
         } else {
+            // if user not authorized, then go to login activity
             startActivity(new Intent(this, LoginActivity.class));
             finish();
+        }
+    }
+
+    private void toMainScreen() {
+        startActivity(new Intent(this, MainActivity.class));
+        finish();
+    }
+
+    private boolean isNeedFillBiodata(String param) {
+        if (param == null) {
+            return true;
+        } else {
+            if (param.equals("")) {
+                return true;
+            } else {
+                return false;
+            }
         }
     }
 }

@@ -27,12 +27,10 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.multazamgsd.takin.R;
-import com.multazamgsd.takin.model.Comment;
 import com.multazamgsd.takin.model.Event;
 import com.multazamgsd.takin.util.AuthHelper;
 import com.multazamgsd.takin.util.DatabaseHelper;
@@ -171,6 +169,11 @@ public class EventDetailActivity extends AppCompatActivity {
         setUpMoreEvent();
 
         btGetTicket = findViewById(R.id.buttonGetTicket);
+        btGetTicket.setOnClickListener(v -> {
+            Intent i = new Intent(EventDetailActivity.this, RegistrationActivity.class);
+            i.putExtra(RegistrationActivity.EXTRA_EVENT, event);
+            startActivity(i);
+        });
     }
 
     private void setUpMoreEvent() {

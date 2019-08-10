@@ -24,10 +24,11 @@ public class Event implements Parcelable {
     private String ticket_total;
     private String ticket_sold;
     private String photo_url;
+    private boolean isLiked = false;
 
     public Event() {}
 
-    public Event(String id, String title, String description, String publisher, String date, String time_start, String time_end, String location_name, String location_address, String location_lat, String location_long, String type, String point, String price, String ticket_total, String ticket_sold, String photo_url) {
+    public Event(String id, String title, String description, String publisher, String date, String time_start, String time_end, String location_name, String location_address, String location_lat, String location_long, String type, String point, String price, String ticket_total, String ticket_sold, String photo_url, boolean isLiked) {
         this.id = id;
         this.title = title;
         this.description = description;
@@ -45,6 +46,7 @@ public class Event implements Parcelable {
         this.ticket_total = ticket_total;
         this.ticket_sold = ticket_sold;
         this.photo_url = photo_url;
+        this.isLiked = isLiked;
     }
 
     public String getId() {
@@ -183,6 +185,14 @@ public class Event implements Parcelable {
         this.photo_url = photo_url;
     }
 
+    public boolean isLiked() {
+        return isLiked;
+    }
+
+    public void setLiked(boolean liked) {
+        isLiked = liked;
+    }
+
 
     @Override
     public int describeContents() {
@@ -208,6 +218,7 @@ public class Event implements Parcelable {
         dest.writeString(this.ticket_total);
         dest.writeString(this.ticket_sold);
         dest.writeString(this.photo_url);
+        dest.writeByte(this.isLiked ? (byte) 1 : (byte) 0);
     }
 
     protected Event(Parcel in) {
@@ -228,9 +239,10 @@ public class Event implements Parcelable {
         this.ticket_total = in.readString();
         this.ticket_sold = in.readString();
         this.photo_url = in.readString();
+        this.isLiked = in.readByte() != 0;
     }
 
-    public static final Parcelable.Creator<Event> CREATOR = new Parcelable.Creator<Event>() {
+    public static final Creator<Event> CREATOR = new Creator<Event>() {
         @Override
         public Event createFromParcel(Parcel source) {
             return new Event(source);

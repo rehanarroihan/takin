@@ -77,6 +77,10 @@ public class MyEventAdapter extends RecyclerView.Adapter<MyEventAdapter.EventVie
                         .placeholderOf(R.drawable.ic_image_grey_24dp)
                         .error(R.drawable.ic_image_grey_24dp))
                 .into(holder.ivBanner);
+
+        holder.btLove.setImageResource(
+                eventItem.isLiked() ? R.drawable.ic_button_love_fill : R.drawable.ic_button_love_black
+        );
     }
 
     @Override

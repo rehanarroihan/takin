@@ -15,12 +15,14 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.multazamgsd.takin.R;
 import com.multazamgsd.takin.model.Event;
 import com.multazamgsd.takin.ui.event_detail.EventDetailActivity;
+import com.multazamgsd.takin.util.AuthHelper;
 import com.multazamgsd.takin.util.DatabaseHelper;
 import com.multazamgsd.takin.util.DividerItemDecorator;
 
@@ -29,6 +31,8 @@ import java.util.List;
 
 public class HomeFragment extends Fragment {
     private static final String TAG = HomeFragment.class.getSimpleName();
+    private DatabaseHelper mDatabaseHelper;
+    private AuthHelper mAuthHelper;
 
     private ArrayList<Event> recommendedList = new ArrayList<>();
     private ArrayList<Event> newList = new ArrayList<>();
@@ -61,6 +65,9 @@ public class HomeFragment extends Fragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         if (getActivity() != null) {
+            mDatabaseHelper = new DatabaseHelper();
+            mAuthHelper = new AuthHelper(getActivity());
+
             setRecommendedList();
             setNewList();
             loadData();
@@ -76,7 +83,7 @@ public class HomeFragment extends Fragment {
 
             @Override
             public void onEventLike(int itemPosition) {
-
+                doLikeItem(recommendedList.get(itemPosition), "new");
             }
 
             @Override
@@ -102,7 +109,7 @@ public class HomeFragment extends Fragment {
 
             @Override
             public void onEventLike(int itemPosition) {
-
+                doLikeItem(recommendedList.get(itemPosition), "recommended");
             }
 
             @Override
@@ -168,5 +175,9 @@ public class HomeFragment extends Fragment {
                                 event.getTitle(),
                                 String.valueOf(ticketAvailable)))
                 .startChooser();
+    }
+
+    private void doLikeItem(Event event, String whatList) {
+
     }
 }

@@ -3,11 +3,11 @@ package com.multazamgsd.takin.ui.event_detail;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.Dialog;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.view.MenuItem;
-import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -16,14 +16,18 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.appcompat.widget.AppCompatButton;
 import androidx.appcompat.widget.Toolbar;
 
 import com.bumptech.glide.request.RequestOptions;
 import com.multazamgsd.takin.R;
 import com.multazamgsd.takin.model.Event;
+import com.multazamgsd.takin.ui.main.MainActivity;
+import com.multazamgsd.takin.util.AuthHelper;
+import com.multazamgsd.takin.util.DatabaseHelper;
 import com.multazamgsd.takin.util.GlideApp;
 import com.multazamgsd.takin.util.GlobalConfig;
+import com.multazamgsd.takin.util.LoadingDialog;
+import com.multazamgsd.takin.util.YesNoDialog;
 import com.pixplicity.easyprefs.library.Prefs;
 
 public class RegistrationActivity extends AppCompatActivity {
@@ -49,6 +53,7 @@ public class RegistrationActivity extends AppCompatActivity {
         setTitle("Registration");
 
         event = getIntent().getParcelableExtra(EXTRA_EVENT);
+        uid = new AuthHelper(this).getCurrentUser().getUid();
 
         // Set up UI
         etEmail = findViewById(R.id.editTextEmail);
@@ -122,35 +127,43 @@ public class RegistrationActivity extends AppCompatActivity {
     }
 
     private void showConfirmationDialog() {
-        final Dialog dialog = new Dialog(this);
-        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        dialog.setContentView(R.layout.dialog_yes_no);
-        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
-        dialog.setCancelable(true);
-
-        WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
-        lp.copyFrom(dialog.getWindow().getAttributes());
-        lp.width = WindowManager.LayoutParams.WRAP_CONTENT;
-        lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
-
-        ((TextView) dialog.findViewById(R.id.textViewMessage)).setText("Do you want to confirm\nthis data ?");
-
-        ((Button) dialog.findViewById(R.id.buttonNo)).setOnClickListener(v -> {
-            Toast.makeText(getApplicationContext(), ((AppCompatButton) v).getText().toString() + " Clicked", Toast.LENGTH_SHORT).show();
-            dialog.dismiss();
-        });
-
-        ((Button) dialog.findViewById(R.id.buttonYes)).setOnClickListener(v -> {
-            Toast.makeText(getApplicationContext(), ((AppCompatButton) v).getText().toString() + " Clicked", Toast.LENGTH_SHORT).show();
-            dialog.dismiss();
-        });
-
+        YesNoDialog.YesNoDialogListener dialogListener = () -> submit();
+        YesNoDialog dialog = new YesNoDialog(this, dialogListener);
+        dialog.setMessage("Do you want to confirm\nthis data ?");
         dialog.show();
-        dialog.getWindow().setAttributes(lp);
     }
 
     private void submit() {
+        LoadingDialog ld = new LoadingDialog(RegistrationActivity.this);
+        ld.show();
+        new DatabaseHelper().insertTransaction(uid, event.getId(), task -> {
+            ld.dismiss();
+            if (task.isSuccessful()) {
+                // Show success dialog
+                final Dialog dialog = new Dialog(this);
+                dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+                dialog.setContentView(R.layout.dialog_book_complete);
+                dialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+                dialog.setCancelable(false);
 
+                WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
+                lp.copyFrom(dialog.getWindow().getAttributes());
+                lp.width = WindowManager.LayoutParams.WRAP_CONTENT;
+                lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
+
+                ((TextView) dialog.findViewById(R.id.textViewMessage)).setText("Registration successful, go to My Event to access your ticket");
+
+                ((Button) dialog.findViewById(R.id.buttonMyEvent)).setOnClickListener(v -> {
+                    startActivity(new Intent(RegistrationActivity.this, MainActivity.class));
+                    finish();
+                });
+
+                dialog.show();
+                dialog.getWindow().setAttributes(lp);
+            } else {
+                Toast.makeText(this, "Something went wrong, please try again", Toast.LENGTH_LONG).show();
+            }
+        });
     }
 
     @Override

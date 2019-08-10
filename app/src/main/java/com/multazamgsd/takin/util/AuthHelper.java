@@ -103,21 +103,15 @@ public class AuthHelper {
     }
 
     public void doLogout() {
-        AlertDialog.Builder alertBuilder;
-        alertBuilder = new AlertDialog.Builder(activity);
-        alertBuilder.setTitle("Logout");
-        alertBuilder.setMessage("Are you sure want to logout ?");
-        alertBuilder.setPositiveButton("Yes", (dialog, which) -> {
+        YesNoDialog.YesNoDialogListener dialogListener = () -> {
             Prefs.clear();
             mAuth.signOut();
             activity.startActivity(new Intent(activity, LoginActivity.class));
             activity.finish();
-        });
-        alertBuilder.setNegativeButton("No", (dialog, which) -> {
-
-        });
-        AlertDialog alert = alertBuilder.create();
-        alert.show();
+        };
+        YesNoDialog dialog = new YesNoDialog(activity, dialogListener);
+        dialog.setMessage("Are you sure want to logout ?");
+        dialog.show();
     }
 
     public interface FirebaseAuthWithGoogleListener {

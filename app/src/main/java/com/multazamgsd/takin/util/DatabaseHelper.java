@@ -33,6 +33,7 @@ public class DatabaseHelper {
     private static String TABLE_USER_NAME = "user";
     private static String TABLE_EVENT_NAME = "event";
     private static String TABLE_COMMENT_NAME = "comment";
+    private static String TABLE_TRANSACTION_NAME = "transaction";
 
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private CollectionReference eventRef = db.collection(TABLE_EVENT_NAME);
@@ -115,8 +116,8 @@ public class DatabaseHelper {
                             getUserDetailFromUID(commentItem.getUid(), userResult -> {
                                 commentItem.setPict(userResult.getPhoto());
                                 commentItem.setNick_name(userResult.getFirst_name());
+                                commentResult.add(commentItem);
                             });
-                            commentResult.add(commentItem);
                         }
                         callback.onComplete(commentResult);
                     }
@@ -133,6 +134,19 @@ public class DatabaseHelper {
         newComment.put("dislike", "0");
 
         db.collection(TABLE_COMMENT_NAME).add(newComment).addOnCompleteListener(task -> {
+            if (task.isComplete()) {
+                callback.onComplete(task);
+            }
+        });
+    }
+
+    public void insertTransaction(String eventId, String uid, InsertTransactionListener callback) {
+        Map<String, Object> newComment = new HashMap<>();
+        newComment.put("event_id", eventId);
+        newComment.put("uid", uid);
+        newComment.put("time", timeNow);
+
+        db.collection(TABLE_TRANSACTION_NAME).add(newComment).addOnCompleteListener(task -> {
             if (task.isComplete()) {
                 callback.onComplete(task);
             }
@@ -160,6 +174,10 @@ public class DatabaseHelper {
     }
 
     public interface SendEventCommentListener {
+        void onComplete(Task task);
+    }
+
+    public interface InsertTransactionListener {
         void onComplete(Task task);
     }
 }

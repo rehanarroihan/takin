@@ -29,11 +29,13 @@ import com.google.gson.GsonBuilder;
 import com.multazamgsd.takin.R;
 import com.multazamgsd.takin.model.LoginRequest;
 import com.multazamgsd.takin.model.User;
+import com.multazamgsd.takin.ui.event_detail.RegistrationActivity;
 import com.multazamgsd.takin.ui.main.MainActivity;
 import com.multazamgsd.takin.ui.main.SplashActivity;
 import com.multazamgsd.takin.util.AuthHelper;
 import com.multazamgsd.takin.util.DatabaseHelper;
 import com.multazamgsd.takin.util.HideKeyboard;
+import com.multazamgsd.takin.util.LoadingDialog;
 import com.multazamgsd.takin.util.StringHelper;
 
 public class LoginActivity extends AppCompatActivity {
@@ -44,7 +46,7 @@ public class LoginActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private AuthHelper authHelper;
     private DatabaseHelper mDatabaseHelper;
-    private ProgressDialog pd;
+    private LoadingDialog ld;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,10 +59,7 @@ public class LoginActivity extends AppCompatActivity {
 
         mAuth = FirebaseAuth.getInstance();
 
-        pd = new ProgressDialog(this);
-        pd.setMessage("Please wait...");
-        pd.setCancelable(false);
-        pd.setIndeterminate(true);
+        ld = new LoadingDialog(this);
 
         etEmail = findViewById(R.id.editTextEmail);
         etPassword = findViewById(R.id.editTextPassword);
@@ -99,12 +98,12 @@ public class LoginActivity extends AppCompatActivity {
                 GoogleSignInAccount account = task.getResult(ApiException.class);
                 authHelper.firebaseAuthWithGoogle(account, firebaseAuthWithGoogleTask -> {
                     if (firebaseAuthWithGoogleTask.isSuccessful()) {
-                        pd.show();
+                        ld.show();
                         // If userdata not exist in db, then beg user to sign up
                         mDatabaseHelper.checkFieldExist("user", mAuth.getCurrentUser().getUid(), isExist -> {
                             if (isExist) {
                                 mDatabaseHelper.updateUserDataOnLogin(mAuth.getCurrentUser().getUid(), onComplete -> {
-                                    pd.dismiss();
+                                    ld.dismiss();
                                     if (onComplete.isSuccessful()) {
                                         startActivity(new Intent(LoginActivity.this, SplashActivity.class));
                                         finish();
@@ -113,12 +112,12 @@ public class LoginActivity extends AppCompatActivity {
                                     }
                                 });
                             } else {
-                                pd.dismiss();
+                                ld.dismiss();
                                 Toast.makeText(this, "You are not registered, please Sign Up first", Toast.LENGTH_LONG).show();
                             }
                         });
                     } else {
-                        pd.dismiss();
+                        ld.dismiss();
                         Toast.makeText(this, "Sign up error, please try again", Toast.LENGTH_LONG).show();
                     }
                 });

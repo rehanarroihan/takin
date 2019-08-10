@@ -5,6 +5,7 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.ShareCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -80,7 +81,7 @@ public class HomeFragment extends Fragment {
 
             @Override
             public void onEventShare(int itemPosition) {
-
+                shareItem(newList.get(itemPosition));
             }
         });
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext(), RecyclerView.VERTICAL, false);
@@ -106,7 +107,7 @@ public class HomeFragment extends Fragment {
 
             @Override
             public void onEventShare(int itemPosition) {
-
+                shareItem(recommendedList.get(itemPosition));
             }
         });
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext(), RecyclerView.VERTICAL, false);
@@ -154,5 +155,18 @@ public class HomeFragment extends Fragment {
         Intent i = new Intent(getActivity(), EventDetailActivity.class);
         i.putExtra(EventDetailActivity.EXTRA_EVENT, dataToSend);
         startActivity(i);
+    }
+
+    private void shareItem(Event event) {
+        int ticketAvailable = Integer.parseInt(event.getTicket_total()) - Integer.parseInt(event.getTicket_sold());
+        ShareCompat.IntentBuilder
+                .from(getActivity())
+                .setType("text/plain")
+                .setChooserTitle("Share event")
+                .setText(
+                        String.format("Ayo daftar event %s di aplikasi Takin, hanya %s tiket tersedia!",
+                                event.getTitle(),
+                                String.valueOf(ticketAvailable)))
+                .startChooser();
     }
 }

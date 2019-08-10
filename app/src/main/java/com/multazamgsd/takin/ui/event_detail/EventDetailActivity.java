@@ -49,6 +49,9 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public class EventDetailActivity extends AppCompatActivity {
     public static final String EXTRA_EVENT = "extra_event";
     public static final String TAG = EventDetailActivity.class.getSimpleName();
+    private String uid;
+    private Menu menu;
+    private boolean isEventLiked = false;
 
     private Boolean descriptionExpand = false;
     private Integer ticketAvailable;
@@ -92,60 +95,21 @@ public class EventDetailActivity extends AppCompatActivity {
         toolbar.setPadding(12,0,24,0);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        //Load string helper for trimming
+        // Load string helper for trimming
         stringHelper = new StringHelper();
 
         // Set main info data
-        ivEvent = findViewById(R.id.imageViewDetailEvent);
-        tvTitle = findViewById(R.id.textViewDetailEventTitle);
-        tvPublisher = findViewById(R.id.textViewDetailEventPublisher);
-        tvDescription = findViewById(R.id.textViewDetailEventDesc);
-        tvSeeMore = findViewById(R.id.textViewSeeMore);
-        tvSeeMore.setOnClickListener(v -> showLessDescription());
+        setUpMainData();
 
-        event = getIntent().getParcelableExtra(EXTRA_EVENT);
-        GlideApp.with(this)
-                .load(event.getPhoto_url())
-                .apply(RequestOptions
-                        .placeholderOf(R.drawable.ic_image_grey_24dp)
-                        .error(R.drawable.ic_image_grey_24dp))
-                .into(ivEvent);
-        tvTitle.setText(event.getTitle());
-        tvPublisher.setText(String.format("Published by %s", event.getPublisher()));
-        tvTitle.setText(event.getTitle());
-        tvDescription.setText(stringHelper.cutString(event.getDescription(), 183));
+        //  Check is event liked
+        isEventLiked();
 
         // Setting up page title
         uppercaseEventType = event.getType().substring(0, 1).toUpperCase() + event.getType().substring(1);
         setTitle(uppercaseEventType);
 
         // Set schedule card info data
-        tvDate = findViewById(R.id.textViewEventDetailDate);
-        tvTime = findViewById(R.id.textViewEventDetailTime);
-        tvPlace = findViewById(R.id.textViewEventDetailPlace);
-        tvAddress = findViewById(R.id.textViewEventDetailAddress);
-        tvTicketAvailability = findViewById(R.id.textViewEventDetailTicketAvailability);
-        tvPoint = findViewById(R.id.textViewEventDetailTAKTotal);
-        tvPrice = findViewById(R.id.textViewEventDetailPrice);
-
-        // Parsing date
-        try {
-            SimpleDateFormat sdf =
-                    new SimpleDateFormat("yyyy-MM-dd", java.util.Locale.ENGLISH); // Original date format from database
-            Date date = sdf.parse(event.getDate());
-            sdf.applyPattern("EEEE, MMMM d"); // Date format for: Saturday, January 12
-            String finalDateFormat = sdf.format(date);
-            tvDate.setText(finalDateFormat); // Set to textView
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        tvTime.setText(String.format("%s - %s WIB", event.getTime_start(), event.getTime_end()));
-        tvPlace.setText(event.getLocation_name());
-        tvAddress.setText(stringHelper.cutString(event.getLocation_address(), 63));
-        ticketAvailable = Integer.parseInt(event.getTicket_total()) - Integer.parseInt(event.getTicket_sold());
-        tvTicketAvailability.setText(String.format("%s / %s Tickets", ticketAvailable ,event.getTicket_total()));
-        tvPoint.setText(String.format("%s TAK", event.getPoint()));
-        tvPrice.setText(stringHelper.priceOrFree(event.getPrice()));
+        setUpDetailData();
 
         // Defining google maps
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.locationMap);
@@ -174,6 +138,57 @@ public class EventDetailActivity extends AppCompatActivity {
             i.putExtra(RegistrationActivity.EXTRA_EVENT, event);
             startActivity(i);
         });
+    }
+
+    private void setUpMainData() {
+        ivEvent = findViewById(R.id.imageViewDetailEvent);
+        tvTitle = findViewById(R.id.textViewDetailEventTitle);
+        tvPublisher = findViewById(R.id.textViewDetailEventPublisher);
+        tvDescription = findViewById(R.id.textViewDetailEventDesc);
+        tvSeeMore = findViewById(R.id.textViewSeeMore);
+        tvSeeMore.setOnClickListener(v -> showLessDescription());
+
+        event = getIntent().getParcelableExtra(EXTRA_EVENT);
+        uid = mAuthHelper.getCurrentUser().getUid();
+        GlideApp.with(this)
+                .load(event.getPhoto_url())
+                .apply(RequestOptions
+                        .placeholderOf(R.drawable.ic_image_grey_24dp)
+                        .error(R.drawable.ic_image_grey_24dp))
+                .into(ivEvent);
+        tvTitle.setText(event.getTitle());
+        tvPublisher.setText(String.format("Published by %s", event.getPublisher()));
+        tvTitle.setText(event.getTitle());
+        tvDescription.setText(stringHelper.cutString(event.getDescription(), 183));
+    }
+
+    private void setUpDetailData() {
+        tvDate = findViewById(R.id.textViewEventDetailDate);
+        tvTime = findViewById(R.id.textViewEventDetailTime);
+        tvPlace = findViewById(R.id.textViewEventDetailPlace);
+        tvAddress = findViewById(R.id.textViewEventDetailAddress);
+        tvTicketAvailability = findViewById(R.id.textViewEventDetailTicketAvailability);
+        tvPoint = findViewById(R.id.textViewEventDetailTAKTotal);
+        tvPrice = findViewById(R.id.textViewEventDetailPrice);
+
+        // Parsing date
+        try {
+            SimpleDateFormat sdf =
+                    new SimpleDateFormat("yyyy-MM-dd", java.util.Locale.ENGLISH); // Original date format from database
+            Date date = sdf.parse(event.getDate());
+            sdf.applyPattern("EEEE, MMMM d"); // Date format for: Saturday, January 12
+            String finalDateFormat = sdf.format(date);
+            tvDate.setText(finalDateFormat); // Set to textView
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        tvTime.setText(String.format("%s - %s WIB", event.getTime_start(), event.getTime_end()));
+        tvPlace.setText(event.getLocation_name());
+        tvAddress.setText(stringHelper.cutString(event.getLocation_address(), 63));
+        ticketAvailable = Integer.parseInt(event.getTicket_total()) - Integer.parseInt(event.getTicket_sold());
+        tvTicketAvailability.setText(String.format("%s / %s Tickets", ticketAvailable ,event.getTicket_total()));
+        tvPoint.setText(String.format("%s TAK", event.getPoint()));
+        tvPrice.setText(stringHelper.priceOrFree(event.getPrice()));
     }
 
     private void setUpMoreEvent() {
@@ -284,7 +299,7 @@ public class EventDetailActivity extends AppCompatActivity {
                 btSendComment.setText("Sending comment...");
                 btSendComment.setEnabled(false);
 
-                mDatabaseHelper.sendEventComment(event.getId(), mAuthHelper.getCurrentUser().getUid(), newComment, task -> {
+                mDatabaseHelper.sendEventComment(event.getId(), uid, newComment, task -> {
                     btSendComment.setText("Send comment");
                     btSendComment.setEnabled(true);
                     new HideKeyboard(EventDetailActivity.this).run();
@@ -320,9 +335,19 @@ public class EventDetailActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        this.menu = menu;
         MenuInflater findMenuItems = getMenuInflater();
         findMenuItems.inflate(R.menu.detail_menu, menu);
         return super.onCreateOptionsMenu(menu);
+    }
+
+    public void isEventLiked() {
+        mDatabaseHelper.checkEventLiked(event.getId(), uid, commentId -> {
+            isEventLiked = commentId != null;
+            menu.getItem(1).setIcon(getResources().getDrawable(
+                    isEventLiked ? R.drawable.ic_button_love_fill : R.drawable.ic_button_love_white
+            ));
+        });
     }
 
     @Override
@@ -332,6 +357,17 @@ public class EventDetailActivity extends AppCompatActivity {
                 finish();
                 break;
             case R.id.action_like:
+                if (isEventLiked) {
+                    mDatabaseHelper.doUnlikeEvent(event.getId(), uid, task -> {
+                        Toast.makeText(this, "Deleted from liked event", Toast.LENGTH_LONG).show();
+                        isEventLiked();
+                    });
+                } else {
+                    mDatabaseHelper.doLikeEvent(event.getId(), uid, task -> {
+                        Toast.makeText(this, "Added to liked event", Toast.LENGTH_LONG).show();
+                        isEventLiked();
+                    });
+                }
                 break;
             case R.id.action_share:
                 ShareCompat.IntentBuilder

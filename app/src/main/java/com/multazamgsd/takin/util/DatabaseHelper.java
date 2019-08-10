@@ -2,9 +2,6 @@ package com.multazamgsd.takin.util;
 
 import android.util.Log;
 
-import androidx.annotation.NonNull;
-
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
@@ -12,18 +9,12 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.multazamgsd.takin.model.Comment;
-import com.multazamgsd.takin.model.Event;
-import com.multazamgsd.takin.model.LoginRequest;
 import com.multazamgsd.takin.model.User;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -34,28 +25,33 @@ public class DatabaseHelper {
     private static String TABLE_EVENT_NAME = "event";
     private static String TABLE_COMMENT_NAME = "comment";
     private static String TABLE_TRANSACTION_NAME = "transaction";
+    private static String TABLE_LIKE_NAME = "like";
 
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
+
     private CollectionReference eventRef = db.collection(TABLE_EVENT_NAME);
+    private CollectionReference userRef = db.collection(TABLE_USER_NAME);
     private CollectionReference commentRef = db.collection(TABLE_COMMENT_NAME);
+    private CollectionReference transactionRef = db.collection(TABLE_TRANSACTION_NAME);
+    private CollectionReference likeRef = db.collection(TABLE_LIKE_NAME);
 
     // Util
     private String timeNow = new StringHelper().timeNow(); //yyyy/MM/dd HH:mm:ss
 
     public DatabaseHelper() {}
 
-    public void updateUserDataOnLogin(String uid, UpdateUserDataListener callback) {
-        db.collection(TABLE_USER_NAME)
-                .document(uid)
-                .update("last_login", new StringHelper().timeNow())
-                .addOnCompleteListener(task -> callback.onComplete(task));
+    public void updateUserDataOnLogin(String uid, TaskCompleteListener callback) {
+        userRef
+            .document(uid)
+            .update("last_login", new StringHelper().timeNow())
+            .addOnCompleteListener(task -> callback.onComplete(task));
     }
 
-    public void updateUserData(User user, UpdateUserDataListener callback) {
-        db.collection(TABLE_USER_NAME)
-                .document(user.getUid())
-                .set(user, SetOptions.merge())
-                .addOnCompleteListener(task -> callback.onComplete(task));
+    public void updateUserData(User user, TaskCompleteListener callback) {
+        userRef
+            .document(user.getUid())
+            .set(user, SetOptions.merge())
+            .addOnCompleteListener(task -> callback.onComplete(task));
     }
 
     public void checkFieldExist(String table, String id, CheckFieldExistListener callback) {
@@ -71,13 +67,29 @@ public class DatabaseHelper {
         });
     }
 
+    public void checkEventLiked(String eventId, String uid, CheckLikedExistListener callback) {
+        likeRef
+            .whereEqualTo("uid", uid)
+            .whereEqualTo("event_id", eventId)
+            .get()
+            .addOnSuccessListener(queryDocumentSnapshots -> {
+
+            if (queryDocumentSnapshots.size() > 0) {
+                callback.onComplete(queryDocumentSnapshots.getDocuments().get(0).getId());
+            } else {
+                callback.onComplete(null);
+            }
+        }).addOnFailureListener(e -> {
+            callback.onComplete(null);
+        });
+    }
+
     public Query getEventList() {
         return eventRef.orderBy("publisher", Query.Direction.ASCENDING);
     }
 
     public void getUserDetailFromUID(String uid, GetUserDetailFromUIDListener callback) {
-        DocumentReference docRef = db.collection(TABLE_USER_NAME).document(uid);
-        docRef.get().addOnSuccessListener(documentSnapshot -> {
+        userRef.document(uid).get().addOnSuccessListener(documentSnapshot -> {
             if (documentSnapshot.exists()) {
                 callback.onComplete(documentSnapshot.toObject(User.class));
             } else {
@@ -88,43 +100,41 @@ public class DatabaseHelper {
     }
 
     public void countEventComment(String event_id, CountEventCommentListener callback) {
-        db.collection(TABLE_COMMENT_NAME)
-                .whereEqualTo("event_id", event_id)
-                .get().addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        callback.onComplete(String.valueOf(task.getResult().size()));
-                    }
-                });
+        commentRef.whereEqualTo("event_id", event_id).get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                callback.onComplete(String.valueOf(task.getResult().size()));
+            }
+        });
     }
 
     public void loadEventComment(String event_id, LoadEventCommentListener callback) {
         ArrayList<Comment> commentResult = new ArrayList<>();
-        db.collection(TABLE_COMMENT_NAME)
-                .whereEqualTo("event_id", event_id)
-                .limit(5)
-                .get().addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        for (DocumentSnapshot doc : task.getResult()) {
-                            Comment commentItem = new Comment();
-                            commentItem.setId(doc.getId());
-                            commentItem.setComment(doc.get("comment").toString());
-                            commentItem.setDislike(doc.get("dislike").toString());
-                            commentItem.setLike(doc.get("like").toString());
-                            commentItem.setTime(doc.get("time").toString());
-                            commentItem.setUid(doc.get("uid").toString());
-                            // Joining user doc to comment
-                            getUserDetailFromUID(commentItem.getUid(), userResult -> {
-                                commentItem.setPict(userResult.getPhoto());
-                                commentItem.setNick_name(userResult.getFirst_name());
-                                commentResult.add(commentItem);
-                            });
-                        }
-                        callback.onComplete(commentResult);
+        commentRef
+            .whereEqualTo("event_id", event_id)
+            .limit(5)
+            .get().addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    for (DocumentSnapshot doc : task.getResult()) {
+                        Comment commentItem = new Comment();
+                        commentItem.setId(doc.getId());
+                        commentItem.setComment(doc.get("comment").toString());
+                        commentItem.setDislike(doc.get("dislike").toString());
+                        commentItem.setLike(doc.get("like").toString());
+                        commentItem.setTime(doc.get("time").toString());
+                        commentItem.setUid(doc.get("uid").toString());
+                        // Joining user doc to comment
+                        getUserDetailFromUID(commentItem.getUid(), userResult -> {
+                            commentItem.setPict(userResult.getPhoto());
+                            commentItem.setNick_name(userResult.getFirst_name());
+                            commentResult.add(commentItem);
+                        });
                     }
-                });
+                    callback.onComplete(commentResult);
+                }
+            });
     }
 
-    public void sendEventComment(String event_id, String uid, String comment, SendEventCommentListener callback) {
+    public void sendEventComment(String event_id, String uid, String comment, TaskCompleteListener callback) {
         Map<String, Object> newComment = new HashMap<>();
         newComment.put("event_id", event_id);
         newComment.put("uid", uid);
@@ -133,20 +143,57 @@ public class DatabaseHelper {
         newComment.put("like", "0");
         newComment.put("dislike", "0");
 
-        db.collection(TABLE_COMMENT_NAME).add(newComment).addOnCompleteListener(task -> {
+        commentRef.add(newComment).addOnCompleteListener(task -> {
             if (task.isComplete()) {
                 callback.onComplete(task);
             }
         });
     }
 
-    public void insertTransaction(String eventId, String uid, InsertTransactionListener callback) {
-        Map<String, Object> newComment = new HashMap<>();
-        newComment.put("event_id", eventId);
-        newComment.put("uid", uid);
-        newComment.put("time", timeNow);
+    public void insertTransaction(String eventId, String uid, TaskCompleteListener callback) {
+        Map<String, Object> transactionItem = new HashMap<>();
+        transactionItem.put("event_id", eventId);
+        transactionItem.put("uid", uid);
+        transactionItem.put("time", timeNow);
 
-        db.collection(TABLE_TRANSACTION_NAME).add(newComment).addOnCompleteListener(task -> {
+        transactionRef.add(transactionItem).addOnCompleteListener(task -> {
+            if (task.isComplete()) {
+                callback.onComplete(task);
+            }
+        });
+    }
+
+    public void doLikeEvent(String eventId, String uid, TaskCompleteListener callback) {
+        Map<String, Object> likeItem = new HashMap<>();
+        likeItem.put("event_id", eventId);
+        likeItem.put("uid", uid);
+        likeItem.put("time", timeNow);
+
+        likeRef.add(likeItem).addOnCompleteListener(task -> {
+            if (task.isComplete()) {
+                callback.onComplete(task);
+            }
+        });
+    }
+
+    public void doUnlikeEvent(String eventId, String uid, TaskCompleteListener callback) {
+        checkEventLiked(eventId, uid, commentId -> {
+            if (commentId != null) {
+                likeRef
+                    .document(commentId)
+                    .delete()
+                    .addOnCompleteListener(task -> {
+
+                        if (task.isComplete()) {
+                            callback.onComplete(task);
+                        }
+                    });
+            }
+        });
+    }
+
+    public void getRegisteredEvent(String uid, TaskCompleteListener callback) {
+        commentRef.whereEqualTo("uid", uid).get().addOnCompleteListener(task -> {
             if (task.isComplete()) {
                 callback.onComplete(task);
             }
@@ -157,8 +204,8 @@ public class DatabaseHelper {
         void onComplete(Boolean isExist);
     }
 
-    public interface UpdateUserDataListener {
-        void onComplete(Task task);
+    public interface CheckLikedExistListener {
+        void onComplete(String commentId);
     }
 
     public interface GetUserDetailFromUIDListener {
@@ -173,11 +220,7 @@ public class DatabaseHelper {
         void onComplete(ArrayList<Comment> result);
     }
 
-    public interface SendEventCommentListener {
-        void onComplete(Task task);
-    }
-
-    public interface InsertTransactionListener {
+    public interface TaskCompleteListener {
         void onComplete(Task task);
     }
 }

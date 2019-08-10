@@ -22,6 +22,7 @@ import com.bumptech.glide.request.RequestOptions;
 import com.multazamgsd.takin.R;
 import com.multazamgsd.takin.model.Event;
 import com.multazamgsd.takin.ui.main.MainActivity;
+import com.multazamgsd.takin.ui.my_event.MyEventActivity;
 import com.multazamgsd.takin.util.AuthHelper;
 import com.multazamgsd.takin.util.DatabaseHelper;
 import com.multazamgsd.takin.util.GlideApp;
@@ -154,7 +155,7 @@ public class RegistrationActivity extends AppCompatActivity {
                 ((TextView) dialog.findViewById(R.id.textViewMessage)).setText("Registration successful, go to My Event to access your ticket");
 
                 ((Button) dialog.findViewById(R.id.buttonMyEvent)).setOnClickListener(v -> {
-                    startActivity(new Intent(RegistrationActivity.this, MainActivity.class));
+                    startActivity(new Intent(RegistrationActivity.this, MyEventActivity.class));
                     finish();
                 });
 

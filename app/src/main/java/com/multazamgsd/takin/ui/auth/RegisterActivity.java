@@ -109,6 +109,7 @@ public class RegisterActivity extends AppCompatActivity {
                             if (isExist) {
                                 ld.dismiss();
                                 Toast.makeText(this, "You are already registered, please Sign In", Toast.LENGTH_LONG).show();
+                                mAuth.signOut();
                             } else {
                                 newUser.setUid(mAuth.getCurrentUser().getUid());
                                 newUser.setAuth_type("google");

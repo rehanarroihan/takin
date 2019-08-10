@@ -1,5 +1,6 @@
 package com.multazamgsd.takin.ui.main;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import com.bumptech.glide.request.RequestOptions;
@@ -14,6 +15,7 @@ import com.google.android.material.navigation.NavigationView;
 import com.multazamgsd.takin.R;
 import com.multazamgsd.takin.model.User;
 import com.multazamgsd.takin.ui.home.HomeFragment;
+import com.multazamgsd.takin.ui.my_event.MyEventActivity;
 import com.multazamgsd.takin.util.AuthHelper;
 import com.multazamgsd.takin.util.DatabaseHelper;
 import com.multazamgsd.takin.util.GlideApp;
@@ -38,6 +40,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private final String SELECTED_BOTTOM_MENU = "selected_bottom_menu";
 
     private BottomNavigationView bottomNavigationView;
+    private NavigationView navigationDrawerView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,7 +52,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         //Setting up drawer navigation
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
-        NavigationView navigationDrawerView = findViewById(R.id.nav_drawer_view);
+        navigationDrawerView = findViewById(R.id.nav_drawer_view);
         navigationDrawerView.setNavigationItemSelectedListener(this);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -102,7 +105,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-        if (id == R.id.action_settings) { return true; }
         return super.onOptionsItemSelected(item);
     }
 
@@ -113,11 +115,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         int id = item.getItemId();
 
         if (id == R.id.nav_my_event) {
-
+            startActivity(new Intent(MainActivity.this, MyEventActivity.class));
+            navigationDrawerView.getMenu().getItem(0).setChecked(false);
         } else if (id == R.id.nav_liked_event) {
 
         } else if (id == R.id.nav_logout) {
             new AuthHelper(this).doLogout();
+            navigationDrawerView.getMenu().getItem(2).setChecked(false);
         }
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);

@@ -17,8 +17,11 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".ui.event_detail.RegistrationActivity"
+            android:name=".ui.my_event.MyEventActivity"
             android:theme="@style/AppTheme.DetailActivity"/>
+        <activity
+            android:name=".ui.event_detail.RegistrationActivity"
+            android:theme="@style/AppTheme.DetailActivity" />
         <activity
             android:name=".ui.main.SplashActivity"
             android:theme="@style/AppTheme.NoActionBar">

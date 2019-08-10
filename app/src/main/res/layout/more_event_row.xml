@@ -50,7 +50,7 @@
                 android:layout_height="34dp"
                 android:padding="6dp"
                 android:layout_toEndOf="@+id/buttonShare"
-                android:src="@drawable/ic_button_love"
+                android:src="@drawable/ic_button_love_black"
                 android:tint="#B3B3B3"
                 android:background="@drawable/bg_round_image"/>
 

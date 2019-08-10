@@ -41,6 +41,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private BottomNavigationView bottomNavigationView;
     private NavigationView navigationDrawerView;
+    private static TextView email;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,8 +73,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
         TextView username = navHeaderView.findViewById(R.id.textViewDrawerUsername);
         username.setText(String.format("%s %s", Prefs.getString(GlobalConfig.FIRST_NAME_PREFS, null), Prefs.getString(GlobalConfig.LAST_NAME_PREFS, null)));
-        TextView email = navHeaderView.findViewById(R.id.textViewDrawerEmail);
-        email.setText(Prefs.getString(GlobalConfig.EMAIL_PREFS, null));
+        email = navHeaderView.findViewById(R.id.textViewDrawerEmail);
+        setPointInfo();
 
         // Setting up bottom navigation
         bottomNavigationView = findViewById(R.id.nav_bottom_view);
@@ -84,6 +85,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         } else {
             bottomNavigationView.setSelectedItemId(R.id.navigation_home);
         }
+    }
+
+    public static void setPointInfo() {
+        email.setText(String.format("%s TAK", Prefs.getString(GlobalConfig.POINT_PREFS, null)));
     }
 
     @Override

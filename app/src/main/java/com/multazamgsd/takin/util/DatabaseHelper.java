@@ -2,6 +2,9 @@ package com.multazamgsd.takin.util;
 
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
@@ -12,6 +15,7 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 import com.multazamgsd.takin.model.Comment;
+import com.multazamgsd.takin.model.Event;
 import com.multazamgsd.takin.model.User;
 
 import java.util.ArrayList;
@@ -150,15 +154,22 @@ public class DatabaseHelper {
         });
     }
 
-    public void insertTransaction(String eventId, String uid, TaskCompleteListener callback) {
+    public void createTransaction(Event event, String uid, TaskCompleteListener callback) {
         Map<String, Object> transactionItem = new HashMap<>();
-        transactionItem.put("event_id", eventId);
+        transactionItem.put("event_id", event.getId());
         transactionItem.put("uid", uid);
         transactionItem.put("time", timeNow);
 
+        int ticketSoldBeforeTransaction = Integer.parseInt(event.getTicket_sold());
+        int ticketSoldAfterTransaction = ticketSoldBeforeTransaction + 1;
+
         transactionRef.add(transactionItem).addOnCompleteListener(task -> {
             if (task.isComplete()) {
-                callback.onComplete(task);
+                // Updating ticket sold value
+                eventRef
+                    .document(event.getId())
+                    .update("ticket_sold", String.valueOf(ticketSoldAfterTransaction))
+                    .addOnCompleteListener(getEventTask -> callback.onComplete(getEventTask));
             }
         });
     }
@@ -190,6 +201,14 @@ public class DatabaseHelper {
                     });
             }
         });
+    }
+
+    public void updateUserPoint(String uid, String currentPoint, String additionalPoint, TaskCompleteListener callback) {
+        int finalPoint = Integer.parseInt(currentPoint) + Integer.parseInt(additionalPoint);
+        userRef
+            .document(uid)
+            .update("point", String.valueOf(finalPoint))
+            .addOnCompleteListener(task -> callback.onComplete(task));
     }
 
     public void getRegisteredEvent(String uid, TaskCompleteListener callback) {

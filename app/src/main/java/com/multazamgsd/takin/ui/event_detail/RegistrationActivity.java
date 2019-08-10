@@ -19,9 +19,9 @@ import android.widget.Toast;
 import androidx.appcompat.widget.Toolbar;
 
 import com.bumptech.glide.request.RequestOptions;
+import com.google.android.gms.auth.api.Auth;
 import com.multazamgsd.takin.R;
 import com.multazamgsd.takin.model.Event;
-import com.multazamgsd.takin.ui.main.MainActivity;
 import com.multazamgsd.takin.ui.my_event.MyEventActivity;
 import com.multazamgsd.takin.util.AuthHelper;
 import com.multazamgsd.takin.util.DatabaseHelper;
@@ -38,6 +38,7 @@ public class RegistrationActivity extends AppCompatActivity {
     private EditText etEmail, etFirstName, etLastName, etIdNo, etInstitution, etPhone;
     private String uid, firstName, lastName, idNo, institution, phone;
     private Button btSubmit;
+    private DatabaseHelper mDatabaseHelper;
 
     private Event event;
 
@@ -55,6 +56,7 @@ public class RegistrationActivity extends AppCompatActivity {
 
         event = getIntent().getParcelableExtra(EXTRA_EVENT);
         uid = new AuthHelper(this).getCurrentUser().getUid();
+        mDatabaseHelper = new DatabaseHelper();
 
         // Set up UI
         etEmail = findViewById(R.id.editTextEmail);
@@ -137,32 +139,46 @@ public class RegistrationActivity extends AppCompatActivity {
     private void submit() {
         LoadingDialog ld = new LoadingDialog(RegistrationActivity.this);
         ld.show();
-        new DatabaseHelper().insertTransaction(uid, event.getId(), task -> {
-            ld.dismiss();
-            if (task.isSuccessful()) {
-                // Show success dialog
-                final Dialog dialog = new Dialog(this);
-                dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-                dialog.setContentView(R.layout.dialog_book_complete);
-                dialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
-                dialog.setCancelable(false);
+        mDatabaseHelper.createTransaction(event, uid, insertTask -> {
+            if (insertTask.isSuccessful()) {
+                // Add additional TAK point
+                String userPoint = Prefs.getString(GlobalConfig.POINT_PREFS, null);
+                mDatabaseHelper.updateUserPoint(uid, userPoint, event.getPoint(), updateTask -> {
+                    if (updateTask.isSuccessful()) {
+                        // Show success dialog
+                        final Dialog dialog = new Dialog(this);
+                        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+                        dialog.setContentView(R.layout.dialog_book_complete);
+                        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+                        dialog.setCancelable(false);
 
-                WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
-                lp.copyFrom(dialog.getWindow().getAttributes());
-                lp.width = WindowManager.LayoutParams.WRAP_CONTENT;
-                lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
+                        WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
+                        lp.copyFrom(dialog.getWindow().getAttributes());
+                        lp.width = WindowManager.LayoutParams.WRAP_CONTENT;
+                        lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
 
-                ((TextView) dialog.findViewById(R.id.textViewMessage)).setText("Registration successful, go to My Event to access your ticket");
+                        ((TextView) dialog.findViewById(R.id.textViewMessage)).setText("Registration successful, go to My Event to access your ticket");
 
-                ((Button) dialog.findViewById(R.id.buttonMyEvent)).setOnClickListener(v -> {
-                    startActivity(new Intent(RegistrationActivity.this, MyEventActivity.class));
-                    finish();
+                        ((Button) dialog.findViewById(R.id.buttonMyEvent)).setOnClickListener(v -> {
+                            startActivity(new Intent(RegistrationActivity.this, MyEventActivity.class));
+                            finish();
+                        });
+
+                        mDatabaseHelper.getUserDetailFromUID(uid, userResult -> {
+                            new AuthHelper(this).updateUserdata(userResult);
+                            ld.dismiss();
+
+                            dialog.show();
+                            dialog.getWindow().setAttributes(lp);
+                        });
+                    } else {
+                        ld.dismiss();
+                        Toast.makeText(this, getResources().getString(R.string.something_went_wrong), Toast.LENGTH_LONG).show();
+                    }
                 });
-
-                dialog.show();
-                dialog.getWindow().setAttributes(lp);
             } else {
-                Toast.makeText(this, "Something went wrong, please try again", Toast.LENGTH_LONG).show();
+                ld.dismiss();
+                Toast.makeText(this, getResources().getString(R.string.something_went_wrong), Toast.LENGTH_LONG).show();
             }
         });
     }

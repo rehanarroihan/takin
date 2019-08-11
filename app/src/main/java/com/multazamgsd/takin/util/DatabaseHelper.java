@@ -14,12 +14,14 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
+import com.google.gson.GsonBuilder;
 import com.multazamgsd.takin.model.Comment;
 import com.multazamgsd.takin.model.Event;
 import com.multazamgsd.takin.model.User;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class DatabaseHelper {
@@ -103,6 +105,7 @@ public class DatabaseHelper {
         });
     }
 
+
     public void countEventComment(String event_id, CountEventCommentListener callback) {
         commentRef.whereEqualTo("event_id", event_id).get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
@@ -112,12 +115,12 @@ public class DatabaseHelper {
     }
 
     public void loadEventComment(String event_id, LoadEventCommentListener callback) {
-        ArrayList<Comment> commentResult = new ArrayList<>();
         commentRef
             .whereEqualTo("event_id", event_id)
             .limit(5)
             .get().addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
+                    List<Comment> commentResult = new ArrayList<>();
                     for (DocumentSnapshot doc : task.getResult()) {
                         Comment commentItem = new Comment();
                         commentItem.setId(doc.getId());
@@ -126,14 +129,29 @@ public class DatabaseHelper {
                         commentItem.setLike(doc.get("like").toString());
                         commentItem.setTime(doc.get("time").toString());
                         commentItem.setUid(doc.get("uid").toString());
-                        // Joining user doc to comment
-                        getUserDetailFromUID(commentItem.getUid(), userResult -> {
-                            commentItem.setPict(userResult.getPhoto());
-                            commentItem.setNick_name(userResult.getFirst_name());
-                            commentResult.add(commentItem);
-                        });
+                        commentResult.add(commentItem);
                     }
-                    callback.onComplete(commentResult);
+
+                    Comment[] commentArray = commentResult.toArray(new Comment[commentResult.size()]);
+                    SeriesIterator<Comment, Comment> seriesIterator = new SeriesIterator<Comment, Comment>(commentArray, new SeriesIterator.SeriesIteratorFunctions<Comment, Comment>() {
+                        @Override
+                        public void onEveryItem(SeriesIterator<Comment, Comment> context, Comment commentItem) {
+                            // Joining user doc to comment
+                            getUserDetailFromUID(commentItem.getUid(), userResult -> {
+                                commentItem.setPict(userResult.getPhoto());
+                                commentItem.setNick_name(userResult.getFirst_name());
+                                context.next(commentItem);
+                            });
+                        }
+
+                        @Override
+                        public void onReturn(List<Comment> values) {
+                            ArrayList<Comment> result = new ArrayList<>();
+                            result.addAll(values);
+                            callback.onComplete(result);
+                        }
+                    });
+                    seriesIterator.execute();
                 }
             });
     }

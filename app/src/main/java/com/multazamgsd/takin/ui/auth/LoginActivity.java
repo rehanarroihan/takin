@@ -36,7 +36,6 @@ import com.multazamgsd.takin.util.AuthHelper;
 import com.multazamgsd.takin.util.DatabaseHelper;
 import com.multazamgsd.takin.util.HideKeyboard;
 import com.multazamgsd.takin.util.LoadingDialog;
-import com.multazamgsd.takin.util.StringHelper;
 
 public class LoginActivity extends AppCompatActivity {
     private EditText etEmail, etPassword;

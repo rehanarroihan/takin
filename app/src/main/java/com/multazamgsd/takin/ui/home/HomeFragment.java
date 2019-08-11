@@ -1,5 +1,6 @@
 package com.multazamgsd.takin.ui.home;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 
@@ -10,6 +11,7 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.viewpager.widget.ViewPager;
 
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -25,6 +27,7 @@ import com.multazamgsd.takin.ui.event_detail.EventDetailActivity;
 import com.multazamgsd.takin.util.AuthHelper;
 import com.multazamgsd.takin.util.DatabaseHelper;
 import com.multazamgsd.takin.util.DividerItemDecorator;
+import com.multazamgsd.takin.util.ShadowTransformer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,6 +45,7 @@ public class HomeFragment extends Fragment {
 
     private RecyclerView rvEventRecommended;
     private RecyclerView rvEventNew;
+    private ViewPager viewPager;
 
     public HomeFragment() {}
 
@@ -59,6 +63,7 @@ public class HomeFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         rvEventRecommended = view.findViewById(R.id.recyclerViewEventRecommended);
         rvEventNew = view.findViewById(R.id.recyclerViewEventNew);
+        viewPager = view.findViewById(R.id.viewPagerSlideshow);
     }
 
     @Override
@@ -70,8 +75,19 @@ public class HomeFragment extends Fragment {
 
             setRecommendedList();
             setNewList();
+            setSlideshow();
             loadData();
         }
+    }
+
+    private void setSlideshow() {
+        SlideshowPagerAdapter pagerAdapter = new SlideshowPagerAdapter(getFragmentManager(), dpToPixels(2, getActivity()));
+        ShadowTransformer fragmentCardShadowTransformer = new ShadowTransformer(viewPager, pagerAdapter);
+        fragmentCardShadowTransformer.enableScaling(true);
+
+        viewPager.setAdapter(pagerAdapter);
+        viewPager.setPageTransformer(false, fragmentCardShadowTransformer);
+        viewPager.setOffscreenPageLimit(3);
     }
 
     private void setNewList() {
@@ -179,5 +195,9 @@ public class HomeFragment extends Fragment {
 
     private void doLikeItem(Event event, String whatList) {
 
+    }
+
+    private static float dpToPixels(int dp, Context context) {
+        return dp * (context.getResources().getDisplayMetrics().density);
     }
 }

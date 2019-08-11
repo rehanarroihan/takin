@@ -22,6 +22,7 @@ import com.bumptech.glide.request.RequestOptions;
 import com.google.android.gms.auth.api.Auth;
 import com.multazamgsd.takin.R;
 import com.multazamgsd.takin.model.Event;
+import com.multazamgsd.takin.ui.main.MainActivity;
 import com.multazamgsd.takin.ui.my_event.MyEventActivity;
 import com.multazamgsd.takin.util.AuthHelper;
 import com.multazamgsd.takin.util.DatabaseHelper;
@@ -166,6 +167,7 @@ public class RegistrationActivity extends AppCompatActivity {
 
                         mDatabaseHelper.getUserDetailFromUID(uid, userResult -> {
                             new AuthHelper(this).updateUserdata(userResult);
+                            MainActivity.setPointInfo();
                             ld.dismiss();
 
                             dialog.show();

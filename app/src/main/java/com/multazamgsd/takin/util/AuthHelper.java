@@ -96,7 +96,6 @@ public class AuthHelper {
         Prefs.putString(GlobalConfig.LAST_LOGIN_PREFS, user.getLast_login());
         Prefs.putString(GlobalConfig.POINT_PREFS, user.getPoint());
         Prefs.putString(GlobalConfig.PASSWORD_PREFS, user.getPassword());
-        MainActivity.setPointInfo();
     }
 
     public FirebaseUser getCurrentUser() {

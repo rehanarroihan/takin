@@ -1,8 +1,10 @@
 package com.multazamgsd.takin.ui.home;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -18,10 +20,14 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.github.sundeepk.compactcalendarview.CompactCalendarView;
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.multazamgsd.takin.R;
@@ -32,6 +38,7 @@ import com.multazamgsd.takin.util.DatabaseHelper;
 import com.multazamgsd.takin.util.DividerItemDecorator;
 import com.multazamgsd.takin.util.ShadowTransformer;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -56,6 +63,11 @@ public class HomeFragment extends Fragment {
     private CompactCalendarView compactCalendarView;
     private TextView tvMonth;
 
+    // Bottom sheet
+    private View llBottomSheet;
+    private BottomSheetBehavior bottomSheetBehavior;
+    private BottomSheetDialog mBottomSheetDialog;
+
     public HomeFragment() {}
 
     public static Fragment newInstance() {
@@ -76,6 +88,10 @@ public class HomeFragment extends Fragment {
 
         compactCalendarView = view.findViewById(R.id.calendarView);
         tvMonth = view.findViewById(R.id.textViewMonth);
+
+        // Bottom sheet
+        llBottomSheet = view.findViewById(R.id.bottom_sheet);
+        bottomSheetBehavior = BottomSheetBehavior.from(llBottomSheet);
     }
 
     @Override
@@ -85,14 +101,56 @@ public class HomeFragment extends Fragment {
             mDatabaseHelper = new DatabaseHelper();
             mAuthHelper = new AuthHelper(getActivity());
 
-            rvEventNew.requestFocus();
-
             setSlideshow();
             setCalendar();
             setRecommendedList();
             setNewList();
             loadData();
         }
+    }
+
+    private void showBottomSheet(Date date, List<com.github.sundeepk.compactcalendarview.domain.Event> events) {
+        if (bottomSheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED) {
+            bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+        }
+
+        // Defining sheet dialog component
+        final View view = getLayoutInflater().inflate(R.layout.bottom_sheet_calendar, null);
+        //Parsing date to readable format
+        try {
+            SimpleDateFormat sdf =
+                    new SimpleDateFormat("E MMM dd hh:mm:ss zzzz yyyy", java.util.Locale.ENGLISH);
+            Date dates = sdf.parse(String.valueOf(date));
+            sdf.applyPattern("dd"); // Date format for: Tue, 24 Mar
+            ((TextView) view.findViewById(R.id.textViewDate)).setText(sdf.format(dates));
+            sdf.applyPattern("MMM");
+            ((TextView) view.findViewById(R.id.textViewMonth)).setText(sdf.format(dates));
+            sdf.applyPattern("yyyy");
+            ((TextView) view.findViewById(R.id.textViewYear)).setText(sdf.format(dates));
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        RecyclerView rvEvent = view.findViewById(R.id.recyclerViewEvent);
+        TextView tvNoEvent = view.findViewById(R.id.textViewNoEvent);
+        if (events.size() == 0) {
+            tvNoEvent.setVisibility(View.VISIBLE);
+            rvEvent.setVisibility(View.GONE);
+        } else {
+            tvNoEvent.setVisibility(View.GONE);
+            rvEvent.setVisibility(View.VISIBLE);
+        }
+
+        mBottomSheetDialog = new BottomSheetDialog(getActivity());
+        mBottomSheetDialog.setContentView(view);
+        ((View) view.getParent()).setBackgroundColor(getResources().getColor(android.R.color.transparent));
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            mBottomSheetDialog.getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        }
+
+        mBottomSheetDialog.show();
+        mBottomSheetDialog.setOnDismissListener(dialog -> mBottomSheetDialog = null);
     }
 
     private void setCalendar() {
@@ -105,7 +163,7 @@ public class HomeFragment extends Fragment {
         SimpleDateFormat dateFormatForMonth;
         dateFormatForMonth = new SimpleDateFormat("MMMM - yyyy", Locale.getDefault());
         compactCalendarView.setCurrentDate(Calendar.getInstance(Locale.getDefault()).getTime());
-        tvMonth.setText(dateFormatForMonth.format(compactCalendarView.getFirstDayOfCurrentMonth()));;
+        tvMonth.setText(dateFormatForMonth.format(compactCalendarView.getFirstDayOfCurrentMonth()));
 
         // define a listener to receive callbacks when certain events happen.
         compactCalendarView.setListener(new CompactCalendarView.CompactCalendarViewListener() {
@@ -113,6 +171,7 @@ public class HomeFragment extends Fragment {
             public void onDayClick(Date dateClicked) {
                 List<com.github.sundeepk.compactcalendarview.domain.Event> events = compactCalendarView.getEvents(dateClicked);
                 Log.d(TAG, "Day was clicked: " + dateClicked + " with events " + events);
+                showBottomSheet(dateClicked, events);
             }
 
             @Override

@@ -1,4 +1,4 @@
-package com.multazamgsd.takin.ui.my_event;
+package com.multazamgsd.takin.ui.all_event;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;

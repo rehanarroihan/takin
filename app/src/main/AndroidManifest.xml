@@ -17,7 +17,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".ui.my_event.MyEventActivity"
+            android:name=".ui.all_event.MyEventActivity"
             android:theme="@style/AppTheme.DetailActivity"/>
         <activity
             android:name=".ui.event_detail.RegistrationActivity"

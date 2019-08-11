@@ -11,9 +11,9 @@ public class SeriesIterator<T,X> {
 
     private T current = null;
 
-    public SeriesIterator(T[] items, SeriesIteratorFunctions<T,X> callbacks) {
+    public SeriesIterator(List<T> items, SeriesIteratorFunctions<T,X> callbacks) {
         this._callbacks = callbacks;
-        this._items = new ArrayList<T>(Arrays.asList(items));
+        this._items = items;
     }
 
     public void execute() {

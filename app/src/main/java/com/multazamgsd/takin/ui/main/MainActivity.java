@@ -9,15 +9,12 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import androidx.core.view.GravityCompat;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 
-import android.util.Log;
 import android.view.MenuItem;
 import com.google.android.material.navigation.NavigationView;
 import com.multazamgsd.takin.R;
-import com.multazamgsd.takin.model.User;
 import com.multazamgsd.takin.ui.home.HomeFragment;
-import com.multazamgsd.takin.ui.my_event.MyEventActivity;
+import com.multazamgsd.takin.ui.all_event.MyEventActivity;
 import com.multazamgsd.takin.util.AuthHelper;
-import com.multazamgsd.takin.util.DatabaseHelper;
 import com.multazamgsd.takin.util.GlideApp;
 import com.multazamgsd.takin.util.GlobalConfig;
 import com.pixplicity.easyprefs.library.Prefs;

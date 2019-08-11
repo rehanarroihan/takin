@@ -2,6 +2,7 @@ package com.multazamgsd.takin.ui.home;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -17,8 +18,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.github.sundeepk.compactcalendarview.CompactCalendarView;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.multazamgsd.takin.R;
@@ -29,8 +32,12 @@ import com.multazamgsd.takin.util.DatabaseHelper;
 import com.multazamgsd.takin.util.DividerItemDecorator;
 import com.multazamgsd.takin.util.ShadowTransformer;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class HomeFragment extends Fragment {
     private static final String TAG = HomeFragment.class.getSimpleName();
@@ -46,6 +53,8 @@ public class HomeFragment extends Fragment {
     private RecyclerView rvEventRecommended;
     private RecyclerView rvEventNew;
     private ViewPager viewPager;
+    private CompactCalendarView compactCalendarView;
+    private TextView tvMonth;
 
     public HomeFragment() {}
 
@@ -64,6 +73,9 @@ public class HomeFragment extends Fragment {
         rvEventRecommended = view.findViewById(R.id.recyclerViewEventRecommended);
         rvEventNew = view.findViewById(R.id.recyclerViewEventNew);
         viewPager = view.findViewById(R.id.viewPagerSlideshow);
+
+        compactCalendarView = view.findViewById(R.id.calendarView);
+        tvMonth = view.findViewById(R.id.textViewMonth);
     }
 
     @Override
@@ -73,11 +85,41 @@ public class HomeFragment extends Fragment {
             mDatabaseHelper = new DatabaseHelper();
             mAuthHelper = new AuthHelper(getActivity());
 
+            rvEventNew.requestFocus();
+
+            setSlideshow();
+            setCalendar();
             setRecommendedList();
             setNewList();
-            setSlideshow();
             loadData();
         }
+    }
+
+    private void setCalendar() {
+        compactCalendarView.setFirstDayOfWeek(Calendar.SUNDAY);
+        com.github.sundeepk.compactcalendarview.domain.Event ev2 = new com.github.sundeepk.compactcalendarview.domain.Event(Color.GREEN, 1433704251000L);
+        compactCalendarView.addEvent(ev2);
+        compactCalendarView.setUseThreeLetterAbbreviation(true);
+
+        // Set date to today
+        SimpleDateFormat dateFormatForMonth;
+        dateFormatForMonth = new SimpleDateFormat("MMMM - yyyy", Locale.getDefault());
+        compactCalendarView.setCurrentDate(Calendar.getInstance(Locale.getDefault()).getTime());
+        tvMonth.setText(dateFormatForMonth.format(compactCalendarView.getFirstDayOfCurrentMonth()));;
+
+        // define a listener to receive callbacks when certain events happen.
+        compactCalendarView.setListener(new CompactCalendarView.CompactCalendarViewListener() {
+            @Override
+            public void onDayClick(Date dateClicked) {
+                List<com.github.sundeepk.compactcalendarview.domain.Event> events = compactCalendarView.getEvents(dateClicked);
+                Log.d(TAG, "Day was clicked: " + dateClicked + " with events " + events);
+            }
+
+            @Override
+            public void onMonthScroll(Date firstDayOfNewMonth) {
+                tvMonth.setText(dateFormatForMonth.format(firstDayOfNewMonth));
+            }
+        });
     }
 
     private void setSlideshow() {

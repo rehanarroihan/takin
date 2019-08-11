@@ -19,11 +19,10 @@ import android.widget.Toast;
 import androidx.appcompat.widget.Toolbar;
 
 import com.bumptech.glide.request.RequestOptions;
-import com.google.android.gms.auth.api.Auth;
 import com.multazamgsd.takin.R;
 import com.multazamgsd.takin.model.Event;
 import com.multazamgsd.takin.ui.main.MainActivity;
-import com.multazamgsd.takin.ui.my_event.MyEventActivity;
+import com.multazamgsd.takin.ui.all_event.MyEventActivity;
 import com.multazamgsd.takin.util.AuthHelper;
 import com.multazamgsd.takin.util.DatabaseHelper;
 import com.multazamgsd.takin.util.GlideApp;

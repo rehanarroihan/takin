@@ -132,8 +132,7 @@ public class DatabaseHelper {
                         commentResult.add(commentItem);
                     }
 
-                    Comment[] commentArray = commentResult.toArray(new Comment[commentResult.size()]);
-                    SeriesIterator<Comment, Comment> seriesIterator = new SeriesIterator<Comment, Comment>(commentArray, new SeriesIterator.SeriesIteratorFunctions<Comment, Comment>() {
+                    SeriesIterator<Comment, Comment> seriesIterator = new SeriesIterator<Comment, Comment>(commentResult, new SeriesIterator.SeriesIteratorFunctions<Comment, Comment>() {
                         @Override
                         public void onEveryItem(SeriesIterator<Comment, Comment> context, Comment commentItem) {
                             // Joining user doc to comment

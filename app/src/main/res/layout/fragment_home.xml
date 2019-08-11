@@ -47,11 +47,74 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/viewPagerSlideshow">
 
+        <!--Calendar view-->
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="@dimen/app_default_right_left_margin"
             android:layout_marginRight="@dimen/app_default_right_left_margin"
+            android:layout_marginBottom="8dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:text="Calendar"
+                android:textColor="@android:color/black"
+                android:textStyle="bold" />
+
+        </RelativeLayout>
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/app_default_right_left_margin"
+            android:layout_marginEnd="@dimen/app_default_right_left_margin"
+            app:cardCornerRadius="10dp"
+            app:cardElevation="2dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/textViewMonth"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textAlignment="center"
+                    android:textColor="@android:color/black"
+                    android:textSize="15sp"
+                    android:padding="14dp"
+                    android:textStyle="bold"
+                    android:text="January - 2019"/>
+
+                <com.github.sundeepk.compactcalendarview.CompactCalendarView
+                    android:id="@+id/calendarView"
+                    android:layout_width="fill_parent"
+                    android:paddingRight="10dp"
+                    android:paddingLeft="10dp"
+                    android:layout_height="250dp"
+                    app:compactCalendarTargetHeight="250dp"
+                    app:compactCalendarTextSize="12sp"
+                    app:compactCalendarBackgroundColor="@android:color/white"
+                    app:compactCalendarTextColor="@android:color/black"
+                    app:compactCalendarCurrentSelectedDayBackgroundColor="@android:color/black"
+                    app:compactCalendarCurrentSelectedDayTextColor="@android:color/white"
+                    app:compactCalendarCurrentDayBackgroundColor="@android:color/white"
+                    app:compactCalendarMultiEventIndicatorColor="@android:color/black" />
+
+            </LinearLayout>
+
+        </androidx.cardview.widget.CardView>
+
+        <!--Recommendation list-->
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/app_default_right_left_margin"
+            android:layout_marginRight="@dimen/app_default_right_left_margin"
+            android:layout_marginTop="26dp"
             android:layout_marginBottom="8dp">
 
             <TextView
@@ -85,6 +148,7 @@
 
         </androidx.cardview.widget.CardView>
 
+        <!--New list-->
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

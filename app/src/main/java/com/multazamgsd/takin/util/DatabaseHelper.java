@@ -17,10 +17,12 @@ import com.google.firebase.firestore.SetOptions;
 import com.google.gson.GsonBuilder;
 import com.multazamgsd.takin.model.Comment;
 import com.multazamgsd.takin.model.Event;
+import com.multazamgsd.takin.model.Transaction;
 import com.multazamgsd.takin.model.User;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -90,8 +92,18 @@ public class DatabaseHelper {
         });
     }
 
-    public Query getEventList() {
-        return eventRef.orderBy("publisher", Query.Direction.ASCENDING);
+    public void getEventListByType(String eventType, EventListListener callback) {
+        eventRef.whereEqualTo("type", eventType).get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                ArrayList<Event> result = new ArrayList<>();
+                for(DocumentSnapshot doc : task.getResult()){
+                    Event e = doc.toObject(Event.class);
+                    e.setId(doc.getId());
+                    result.add(e);
+                }
+                callback.onComplete(result);
+            }
+        });
     }
 
     public void getUserDetailFromUID(String uid, GetUserDetailFromUIDListener callback) {
@@ -105,12 +117,17 @@ public class DatabaseHelper {
         });
     }
 
-
     public void countEventComment(String event_id, CountEventCommentListener callback) {
         commentRef.whereEqualTo("event_id", event_id).get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 callback.onComplete(String.valueOf(task.getResult().size()));
             }
+        });
+    }
+
+    public void getEventDetail(String event_id, EventItemListener callback) {
+        eventRef.document(event_id).get().addOnCompleteListener(task -> {
+            callback.onComplete(task.getResult().toObject(Event.class));
         });
     }
 
@@ -228,10 +245,32 @@ public class DatabaseHelper {
             .addOnCompleteListener(task -> callback.onComplete(task));
     }
 
-    public void getRegisteredEvent(String uid, TaskCompleteListener callback) {
-        commentRef.whereEqualTo("uid", uid).get().addOnCompleteListener(task -> {
-            if (task.isComplete()) {
-                callback.onComplete(task);
+    public void getRegisteredEvent(String uid, EventListListener callback) {
+        transactionRef.whereEqualTo("uid", uid).get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                ArrayList<Transaction> transactionResult = new ArrayList<>();
+                for(DocumentSnapshot doc : task.getResult()){
+                    Transaction t = doc.toObject(Transaction.class);
+                    t.setId(doc.getId());
+                    transactionResult.add(t);
+                }
+
+                SeriesIterator<Transaction, Event> seriesIterator = new SeriesIterator<Transaction, Event>(transactionResult, new SeriesIterator.SeriesIteratorFunctions<Transaction, Event>() {
+                    @Override
+                    public void onEveryItem(SeriesIterator<Transaction, Event> context, Transaction item) {
+                        getEventDetail(item.getEvent_id(), event -> {
+
+                        });
+                    }
+
+                    @Override
+                    public void onReturn(List<Event> values) {
+                        ArrayList<Event> result = new ArrayList<>();
+                        result.addAll(values);
+                        callback.onComplete(result);
+                    }
+                });
+                seriesIterator.execute();
             }
         });
     }
@@ -254,6 +293,14 @@ public class DatabaseHelper {
 
     public interface LoadEventCommentListener {
         void onComplete(ArrayList<Comment> result);
+    }
+
+    public interface EventListListener {
+        void onComplete(ArrayList<Event> result);
+    }
+
+    public interface EventItemListener {
+        void onComplete(Event event);
     }
 
     public interface TaskCompleteListener {

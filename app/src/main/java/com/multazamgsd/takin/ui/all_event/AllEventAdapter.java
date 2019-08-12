@@ -21,12 +21,12 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
-public class MyEventAdapter extends RecyclerView.Adapter<MyEventAdapter.EventViewHolder> {
+public class AllEventAdapter extends RecyclerView.Adapter<AllEventAdapter.EventViewHolder> {
     private final Activity activity;
     private ArrayList<Event> events = new ArrayList<>();
     private eventAdapterListener mEventAdapterListener;
 
-    public MyEventAdapter(Activity activity, eventAdapterListener eventAdapterListener) {
+    public AllEventAdapter(Activity activity, eventAdapterListener eventAdapterListener) {
         this.activity = activity;
         this.mEventAdapterListener = eventAdapterListener;
     }
@@ -44,7 +44,7 @@ public class MyEventAdapter extends RecyclerView.Adapter<MyEventAdapter.EventVie
     @NonNull
     @Override
     public EventViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(activity).inflate(R.layout.event_row, parent, false);
+        View view = LayoutInflater.from(activity).inflate(R.layout.card_event_row, parent, false);
         return new EventViewHolder(view);
     }
 

@@ -13,7 +13,7 @@ import android.view.MenuItem;
 import com.google.android.material.navigation.NavigationView;
 import com.multazamgsd.takin.R;
 import com.multazamgsd.takin.ui.home.HomeFragment;
-import com.multazamgsd.takin.ui.all_event.MyEventActivity;
+import com.multazamgsd.takin.ui.all_event.AllEventActivity;
 import com.multazamgsd.takin.util.AuthHelper;
 import com.multazamgsd.takin.util.GlideApp;
 import com.multazamgsd.takin.util.GlobalConfig;
@@ -117,10 +117,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         int id = item.getItemId();
 
         if (id == R.id.nav_my_event) {
-            startActivity(new Intent(MainActivity.this, MyEventActivity.class));
+            Intent i = new Intent(MainActivity.this, AllEventActivity.class);
+            i.putExtra(AllEventActivity.EXTRA_EVENT, "booked");
+            startActivity(i);
             navigationDrawerView.getMenu().getItem(0).setChecked(false);
         } else if (id == R.id.nav_liked_event) {
-
+            Intent i = new Intent(MainActivity.this, AllEventActivity.class);
+            i.putExtra(AllEventActivity.EXTRA_EVENT, "liked");
+            startActivity(i);
         } else if (id == R.id.nav_logout) {
             new AuthHelper(this).doLogout();
             navigationDrawerView.getMenu().getItem(2).setChecked(false);
